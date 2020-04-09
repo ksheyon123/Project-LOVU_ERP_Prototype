@@ -91,23 +91,20 @@
                         array.push({cellNum : cellNum, cellNm : cellNm, cellCp : cellCp, cellCnt : cellCnt, cellPrice : cellPrice, cellVoid : cellVoid})
                     }
 
-                const response = fetch('http://localhost:3000/putRequestToDB', {
-                    method: 'POST',
-                    headers : {
-                    'Content-Type' : 'application/json',
-                    },
-                    body : JSON.stringify({data : array})
-                })
+                    const response = await fetch('http://localhost:3000/putRequestToDB', {
+                        method: 'POST',
+                        headers : {
+                        'Content-Type' : 'application/json',
+                        },
+                        body : JSON.stringify({data : array})
+                    })
+                    
 
-                if (response.ok) {
-                    window.alert('주문이 요청되었습니다')
-                } else {
-                    window.alert('????')
+
+                    if (response.ok) {
+                        window.alert('주문이 요청되었습니다')
+                    }
                 }
-
-                }
-
-                
             } catch (err) {
                 window.alert('Err!!')
             }
