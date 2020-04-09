@@ -8,28 +8,9 @@
     </head>
     <body>
         <h1>Dr.MEI Logistics</h1>
+        
     </body>
     <script>
-        $(document).ready( async () => {
-            try {
-                const response = fetch('http://localhost:3000/getLogisManagement',{
-                    method : 'GET',
-                    headers : {
-                        'Content-Type': 'application/json'
-                    }
-                });
 
-                var json = await response.json();
-                console.log(json)
-                if(response.ok) {
-                    window.alert(json);
-                } else {
-                    window.alert('!!')
-                }
-            } catch (err) {
-                window.alert('err');
-
-            }
-        })
     </script>        
 </html>
