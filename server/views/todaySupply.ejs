@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <script
+        src="https://code.jquery.com/jquery-3.4.1.js"
+        integrity="sha256-WpOohJOqMqqyKL9FccASB9O0KwACQJpFTUBLTYOVvVU="
+        crossorigin="anonymous"></script>
+    </head>
+    <body>
+        <h1>금일 입고 제품을 기입해주세요</h1>
+        <p>
+            입고 제품 리스트
+        </p>
+        <div>
+            <p>
+                입고 일자 : <div id='date'>
+            </p>
+        </div>
+
+        <div>
+            품목 : 
+        </div>
+        <div class='dropdown'>
+            <button onclick="dropdown()" class='dropBtn'>품목 조회</button>
+            <div id='dropdown_itemList' class='dropdown-content'>
+                <input type='text' placeholder='상품 이름 검색' id='itemName' onkeyup="filterFunction()">
+                <div id='itemList'></div>
+            </div>
+
+        </div>
+    </body>
+    <script>
+        var date = new Date();
+        var year = date.getFullYear();
+        var month = date.getMonth() + 1;
+        var day = date.getDate();
+        var today = year + '/' + month + '/' + day;
+        console.log(today)
+
+        var date = document.getElementById('date');
+        date.innerHTML = today;
+
+        $(document).ready( async () => {
+            const response = await fetch ('http://localhost:3000/getItemsList', {
+                method: 'GET',
+                headers : {
+                    'Content-Type': 'application/json'
+                }
+            })
+            var json = await response.json();
+            if (response.ok) {
+                var itemList = document.getElementById('itemList');
+                var newDiv = document.createElement('div');
+                
+                for(var i = 0; i < json.length; i ++) {
+                    var textNode = document.createTextNode(json[i]);
+                    newDiv.appendChild(textNode);
+                }
+                document.getElementById('itemList').appendChild(newDiv)
+            }
+        })
+        dropdown = () => {
+            document.getElementById('dropdown_itemList').classList.toggle('show');
+        }
+
+        filterFunction = () => {
+            var input, filter, ul, li, a, i;
+            input = document.getElementById('itemName');
+            filter = input.value;
+            div = document.getElementById('dropdown_itemList');
+            a = div.getElementsByTagName('div');
+            for (i=0; i < a.length; i++) {
+                txtValue = a[i].textContent || a[i].innerText;
+                if (txtValue.indexOf(filter) > -1) {
+                    a[i].style.display = "";
+                } else {
+                    a[i].style.display = "none";
+                }
+            }
+        }
+    </script>
+    <style>
+    .dropdown-content {
+        display: none;
+        position: absolute;
+        background-color: #f6f6f6;
+        min-width: 230px;
+        overflow: auto;
+        border: 1px solid #ddd;
+        z-index: 1;
+    }
+    .show {
+        display: block;
+    }
+    </style>
+</html>
