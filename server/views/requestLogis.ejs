@@ -8,7 +8,8 @@
     </head>
     <body>
         <h1>Dr.MEI Logistics</h1>
-        <div>닥터 메이 제품 출고 요청 페이지 입니다</div>
+        <h2>닥터 메이 제품 출고 요청 페이지 입니다</h2>
+            <br>
         요청자 : <input type='text' name='incharge' id='incharge'>
         전화번호 : <input type='text' name='cphone' id='cphone'>
         출고일자 : <input type='text' name='deliverydate' id='deliverydate'>
@@ -69,7 +70,7 @@
 
             //Note
             var objCell_Void = objRow.insertCell();
-            objCell_Void.innerHTML = "<input type='text' id='row_num' name='row_num' value=''/>";
+            objCell_Void.innerHTML = "<input type='text' id='row_void' name='row_void' value=''/>";
         }
 
         requestItems = async () => {

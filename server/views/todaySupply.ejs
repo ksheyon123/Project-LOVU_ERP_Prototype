@@ -17,7 +17,7 @@
             </p>
         </div>
 
-        <div>
+        <!-- <div>
             품목 : 
         </div>
         <div class='dropdown'>
@@ -27,9 +27,35 @@
                 <div id='itemList'></div>
             </div>
 
+        </div> -->
+
+        <p>
+            <button type='button' id='addBtn' name='addBtn' onClick='addOrderList()'>상품 추가</button>
+            <button type='button' id='deleteBtn' name='deleteBtn' onClick='deleteOrderList()'>상품 제거</button>
+        </p>
+        <div>
+            <table width='1500px'>
+                <tr>
+                    <td>No.</td>
+                    <td>일자</td>
+                    <td>품목</td>
+                    <td>용량</td>
+                    <td>수량</td>
+                    <td>금액</td>
+                    <td>요청자</td>
+                    <td>구분</td>
+                    <td>결제수단</td>
+                    <td>반품자</td>
+                    <td>비고</td>
+                </tr>
+                <tbody id='tblShow'>
+
+                </tbody>
+            </table>
         </div>
     </body>
     <script>
+        var count = 0;
         var date = new Date();
         var year = date.getFullYear();
         var month = date.getMonth() + 1;
@@ -50,34 +76,101 @@
             var json = await response.json();
             if (response.ok) {
                 var itemList = document.getElementById('itemList');
-                var newDiv = document.createElement('div');
                 
                 for(var i = 0; i < json.length; i ++) {
+                    var ul = document.createElement('ul');
                     var textNode = document.createTextNode(json[i]);
-                    newDiv.appendChild(textNode);
+                    ul.appendChild(textNode);
+                    document.getElementById('itemList').appendChild(ul)
                 }
-                document.getElementById('itemList').appendChild(newDiv)
             }
         })
-        dropdown = () => {
-            document.getElementById('dropdown_itemList').classList.toggle('show');
-        }
+        addOrderList = () => {
+            count++;
+            var objRow;
+            objRow = document.all('tblShow').insertRow();
 
-        filterFunction = () => {
-            var input, filter, ul, li, a, i;
-            input = document.getElementById('itemName');
-            filter = input.value;
-            div = document.getElementById('dropdown_itemList');
-            a = div.getElementsByTagName('div');
-            for (i=0; i < a.length; i++) {
-                txtValue = a[i].textContent || a[i].innerText;
-                if (txtValue.indexOf(filter) > -1) {
-                    a[i].style.display = "";
-                } else {
-                    a[i].style.display = "none";
-                }
-            }
+            //No.
+            var objCell_Num = objRow.insertCell();
+            objCell_Num.innerHTML = count;
+
+            //Product Supply Date
+            var objCell_Date = objRow.insertCell();
+            objCell_Date.innerHTML = today;
+
+            //Product Name
+            var objCell_Name = objRow.insertCell();
+            objCell_Name.innerHTML = "<input type='text' id='row_nm' name='row_nm' value=''/>";
+
+            //Product Capacity(Volume)
+            var objCell_Cp = objRow.insertCell();
+            objCell_Cp.innerHTML = "<input type='text' id='row_cp' name='row_cp' value=''/>";
+
+            //Product Count
+            var objCell_Cnt= objRow.insertCell();
+            objCell_Cnt.innerHTML = "<input type='text' id='row_cnt' name='row_cnt' value=''/>";
+            
+            //Price
+            var objCell_Price= objRow.insertCell();
+            objCell_Price.innerHTML = "<input type='text' id='row_price' name='row_price' value=''/>";
+
+            //Requestor
+            var objCell_Rt= objRow.insertCell();
+            objCell_Rt.innerHTML = "<input type='text' id='row_rt' name='row_rt' value=''/>";
+
+            //Supply Purpose (Distinct)
+            var objCell_Dnt = objRow.insertCell();
+            objCell_Dnt.innerHTML = 
+                "반품<input type='radio' id='row_dnt' name='row_dnt' value='반품'/>" + 
+                "본사<input type='radio' id='row_dnt' name='row_dnt' value='본사'/>" + 
+                "기타<input type='radio' id='row_dnt' name='row_dnt' value='기타'/>";
+
+            //Payment
+            var objCell_Pmt = objRow.insertCell();
+            objCell_Pmt.innerHTML = 
+                "현금<input type='radio' id='row_pmt' name='row_pmt' value=''/>" + 
+                "카드<input type='radio' id='row_pmt' name='row_pmt' value=''/>" +
+                "외상<input type='radio' id='row_pmt' name='row_pmt' value=''/>";
+
+            //Supplier
+            var objCell_Sup = objRow.insertCell();
+            objCell_Sup.innerHTML = "<input type='text' id='row_sup' name='row_sup' value=''/>";
+
+            //Note
+            var objCell_Void = objRow.insertCell();
+            objCell_Void.innerHTML = "<input type='text' id='row_void' name='row_void' value=''/>";
         }
+        deleteOrderList = () => {
+            count--;
+            var tblContent = document.getElementById('tblShow');
+            //If There is no Data at all, Do Nothing.
+            if (tblContent.rows.length < 1) return;
+
+            //Delete From Last Table
+            tblContent.deleteRow(tblContent.rows.length-1);
+        }
+        //Dropdown Item Call Function
+        // dropdown = () => {
+        //     document.getElementById('dropdown_itemList').classList.toggle('show');
+        // }
+
+        // filterFunction = () => {
+        //     var input, filter, ul, li, a, i;
+        //     input = document.getElementById('itemName');
+        //     filter = input.value;
+        //     div = document.getElementById('dropdown_itemList');
+        //     a = div.getElementsByTagName('ul');
+        //     console.log(a[0].textContent)
+        //     for (i=0; i < a.length; i++) {
+        //         txtValue = a[i].textContent || a[i].innerText;
+        //         console.log(txtValue.indexOf(filter))
+        //         if (txtValue.indexOf(filter) > -1) {
+        //             a[i].style.display = "";
+        //         } else {
+        //             a[i].style.display = "none";
+        //         }
+        //     }
+        // }
     </script>
     <style>
     .dropdown-content {
