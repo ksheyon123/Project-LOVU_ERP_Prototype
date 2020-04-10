@@ -8,19 +8,51 @@
     </head>
     <body>
         <h1>금일 입고 제품을 기입해주세요</h1>
-        <p>
-            입고 제품 리스트
-        </p>
+        
         <div>
+            <>
+                입고 일자 : <div id='date'></div>
+            </p>
             <p>
-                입고 일자 : <div id='date'>
+                품목 : <input type='button' id='item' name='item' value='상품 조회' onclick='openItemSearchBox(this)'>
+                <div id=''></div>
+            </p>
+            <p>
+                수량 : <input type='text' id='item_cnt' name='item_cnt' value=''>
+            </p>
+            <p>
+                금액 : <input type='text' id='item_price' name='item_price' value=''>
+            </p>
+            <p>
+                요청자 : <input type='text' id='item_rt' name='item_rt' value=''>
+            </p>
+            <p>
+                구분 : 
+                반품<input type='radio' id='item_dnt' name='item_dnt' value='반품'>
+                본사<input type='radio' id='item_dnt' name='item_dnt' value='본사'>
+                기타<input type='radio' id='item_dnt' name='item_dnt' value='기타'>
+            </p>
+            <p>
+                결제수단 : 
+                현금<input type='radio' id='item_pmt' name='item_pmt' value=''>
+                카드<input type='radio' id='item_pmt' name='item_pmt' value=''>
+                외상<input type='radio' id='item_pmt' name='item_pmt' value=''>
+            </p>
+            <p>
+                공급자 :
+                <input type='text' id='item_sup' name='item_sup' value=''>
+            </p>
+            <p>
+                비고 :
+                <input type='text' id='item_void' name='item_void' value=''>
             </p>
         </div>
-
-        <p>
-            <button type='button' id='addBtn' name='addBtn' onclick='addOrderList()'>상품 추가</button>
-            <button type='button' id='deleteBtn' name='deleteBtn' onclick='deleteOrderList()'>상품 제거</button>
-        </p>
+        <div>
+            <p>
+                <button type='button' id='addBtn' name='addBtn' onclick='addOrderList()'>상품 추가</button>
+                <button type='button' id='deleteBtn' name='deleteBtn' onclick='deleteOrderList()'>상품 제거</button>
+            </p>
+        </div>
         <div>
             <table width='1500px'>
                 <tr>
@@ -41,7 +73,11 @@
             </table>
         </div>
         <p>
-            <button type='button' id='requestBtn' name='requestBtn' onClick='putSupplyList()'>입고</button>
+            <button type='button' id='requestBtn' name='requestBtn' onclick='putSupplyList()'>입고</button>
+        </p>
+        <hr>
+        <p>
+            입고 제품 리스트
         </p>
 
         <!-- The Modal -->
@@ -71,9 +107,7 @@
 
         addOrderList = () => {
             count++;
-            var row_nm = 'row_nm' + count;
-            var row_cp = 'row_cp' + count;
-            var arow_nm = 'a' + row_nm;
+            var row_nm = document.getElementById('item').value;
             var objRow;
             objRow = document.all('tblShow').insertRow();
 
@@ -156,12 +190,40 @@
         }
 
         putSupplyList = async () => {
-            const response = await fetch ('http://localhost:3000', {
-                method: 'POST',
-                headers : {
-                    'Content-Type' : 'application/json'
+            try {
+                var tblContent = document.getElementById('tblShow');
+                var tblData = tblContent.childNodes;
+                var array = new Array();
+                console.log(tblData)
+                if (tblContent.rows.length == 0) {
+                    window.alert('주문을 요청할 상품을 기록해주세요')
+                } else {
+                    for (var i = 1; i < tblData.length; i++) {
+                        console.log(tblData[i].cells[1].getElementsByTagName('input'))
+                        var cellNm = tblData[i].cells[1].getElementsByTagName('input')[0].value;
+                        var cellCp = tblData[i].cells[2].getElementsByTagName('input')[0].value;
+                        var cellCnt = tblData[i].cells[3].getElementsByTagName('input')[0].value;
+                        var cellPrice = tblData[i].cells[4].getElementsByTagName('input')[0].value;
+                        var cellVoid = tblData[i].cells[5].getElementsByTagName('input')[0].value;
+                        array.push({cellNum : cellNum, cellNm : cellNm, cellCp : cellCp, cellCnt : cellCnt, cellPrice : cellPrice, cellVoid : cellVoid})
+                    }
+
+                    const response = await fetch('http://localhost:3000/putRequestToDB', {
+                        method: 'POST',
+                        headers : {
+                        'Content-Type' : 'application/json',
+                        },
+                        body : JSON.stringify({data : array})
+                    })
+                    
+                    if (response.ok) {
+                        window.alert('주문이 요청되었습니다')
+                        location.reload();
+                    }
                 }
-            })
+            } catch (err) {
+                window.alert('Err!!')
+            }
         }
 
         //From Here Search Box Related Functions!!
@@ -181,6 +243,7 @@
                 modal.style.display = "none";
             }
         }
+
         openItemSearchBox = (data) => {
             var code = `a` + data.id; 
             modal.style.display = "block";

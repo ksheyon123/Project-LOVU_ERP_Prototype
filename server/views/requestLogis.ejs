@@ -44,13 +44,15 @@
             </p>
     </body>
     <script>
+        var count = 0;
         addOrderList = () => {
+            count++;
             var objRow;
             objRow = document.all('tblShow').insertRow();
 
             //No.
             var objCell_Num = objRow.insertCell();
-            objCell_Num.innerHTML = "<input type='text' id='row_num' name='row_num' value=''/>";
+            objCell_Num.innerHTML = count;
 
             //Product Name
             var objCell_Nm = objRow.insertCell();
@@ -83,13 +85,12 @@
                     window.alert('주문을 요청할 상품을 기록해주세요')
                 } else {
                     for (var i = 1; i < tblData.length; i++) {
-                        var cellNum = tblData[i].cells[0].getElementsByTagName('input')[0].value;
                         var cellNm = tblData[i].cells[1].getElementsByTagName('input')[0].value;
                         var cellCp = tblData[i].cells[2].getElementsByTagName('input')[0].value;
                         var cellCnt = tblData[i].cells[3].getElementsByTagName('input')[0].value;
                         var cellPrice = tblData[i].cells[4].getElementsByTagName('input')[0].value;
                         var cellVoid = tblData[i].cells[5].getElementsByTagName('input')[0].value;
-                        array.push({cellNum : cellNum, cellNm : cellNm, cellCp : cellCp, cellCnt : cellCnt, cellPrice : cellPrice, cellVoid : cellVoid})
+                        array.push({cellNm : cellNm, cellCp : cellCp, cellCnt : cellCnt, cellPrice : cellPrice, cellVoid : cellVoid})
                     }
 
                     const response = await fetch('http://localhost:3000/putRequestToDB', {
