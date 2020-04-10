@@ -44,5 +44,8 @@ router.post('/requestItemList', async (req, res) => {
   }
 })
 
+router.get('/todayOrder', (req, res) => {
+  res.render('todayOrder')
+})
 
 module.exports = router;

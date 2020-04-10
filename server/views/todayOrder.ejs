@@ -41,7 +41,7 @@
             </table>
         </div>
         <p>
-            <button type='button' id='requestBtn' name='requestBtn' onClick='putSupplyList()'>입고</button>
+            <button type='button' id='requestBtn' name='requestBtn' onClick='putSupplyList()'>출고</button>
         </p>
 
         <!-- The Modal -->
@@ -73,6 +73,7 @@
             count++;
             var row_nm = 'row_nm' + count;
             var row_cp = 'row_cp' + count;
+            var arow_nm = 'a' + row_nm;
             var objRow;
             objRow = document.all('tblShow').insertRow();
 
@@ -82,7 +83,7 @@
 
             //Product Name
             var objCell_Name = objRow.insertCell();
-            objCell_Name.innerHTML = `<input type='button' id='${row_nm}' name='${row_nm}' value='상품 조회' onclick='openItemSearchBox(this)'/>`;
+            objCell_Name.innerHTML = `<input type='button' id='${row_nm}' name='${row_nm}' value='상품 조회' onclick='openItemSearchBox(this)'/>` + `<div id='${arow_nm}' name='${arow_nm}' />`;
 
             //Product Capacity(Volume)
             var objCell_Cp = objRow.insertCell();
@@ -150,7 +151,7 @@
             console.log('json', json[0])
             if (response.ok) {
                 var newDiv = document.createElement('div');
-                data.append(json[0])
+                data.innerHTML = json[0]
             }
         }
 
@@ -181,9 +182,9 @@
             }
         }
         openItemSearchBox = (data) => {
-            console.log(data.id)
+            var code = `a` + data.id; 
             modal.style.display = "block";
-            document.getElementById('requestItemListBtn').setAttribute('value', data.id)
+            document.getElementById('requestItemListBtn').setAttribute('value', code)
         }
 
         
