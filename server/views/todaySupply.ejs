@@ -10,12 +10,11 @@
         <h1>금일 입고 제품을 기입해주세요</h1>
         
         <div>
-            <>
                 입고 일자 : <div id='date'></div>
             </p>
             <p>
                 품목 : <input type='button' id='item' name='item' value='상품 조회' onclick='openItemSearchBox(this)'>
-                <div id=''></div>
+                <div id='item_nm'></div>
             </p>
             <p>
                 수량 : <input type='text' id='item_cnt' name='item_cnt' value=''>
@@ -28,15 +27,15 @@
             </p>
             <p>
                 구분 : 
-                반품<input type='radio' id='item_dnt' name='item_dnt' value='반품'>
-                본사<input type='radio' id='item_dnt' name='item_dnt' value='본사'>
-                기타<input type='radio' id='item_dnt' name='item_dnt' value='기타'>
+                반품<input type='radio' id='item_dnt1' name='item_dnt' value='반품' checked>
+                본사<input type='radio' id='item_dnt2' name='item_dnt' value='본사'>
+                기타<input type='radio' id='item_dnt3' name='item_dnt' value='기타'>
             </p>
             <p>
                 결제수단 : 
-                현금<input type='radio' id='item_pmt' name='item_pmt' value=''>
-                카드<input type='radio' id='item_pmt' name='item_pmt' value=''>
-                외상<input type='radio' id='item_pmt' name='item_pmt' value=''>
+                현금<input type='radio' id='item_pmt1' name='item_pmt' value='현금' checked>
+                카드<input type='radio' id='item_pmt2' name='item_pmt' value='카드'>
+                외상<input type='radio' id='item_pmt3' name='item_pmt' value='외상'>
             </p>
             <p>
                 공급자 :
@@ -107,7 +106,16 @@
 
         addOrderList = () => {
             count++;
-            var row_nm = document.getElementById('item').value;
+            var row_nm = document.getElementById('item_nm').value;
+            console.log(row_nm)
+            var row_cnt = document.getElementById('item_cnt').value;
+            var row_price = document.getElementById('item_price').value;
+            var row_rt = document.getElementById('item_rt').value;
+            var row_dnt = $('input[name="item_dnt"]:checked').val();
+            var row_pmt = $('input[name="item_pmt"]:checked').val();
+            var row_sup = document.getElementById('item_sup').value;
+            var row_void = document.getElementById('item_void').value;
+
             var objRow;
             objRow = document.all('tblShow').insertRow();
 
@@ -117,45 +125,39 @@
 
             //Product Name
             var objCell_Name = objRow.insertCell();
-            objCell_Name.innerHTML = `<input type='button' id='${row_nm}' name='${row_nm}' value='상품 조회' onclick='openItemSearchBox(this)'/>` + `<div id='${arow_nm}' name='${arow_nm}' />`;
+            objCell_Name.innerHTML = row_nm;
 
             //Product Capacity(Volume)
             var objCell_Cp = objRow.insertCell();
-            objCell_Cp.innerHTML = `<div id='${row_cp}' name='${row_cp}' value=''/>`;
+            objCell_Cp.innerHTML = null;
 
             //Product Count
             var objCell_Cnt= objRow.insertCell();
-            objCell_Cnt.innerHTML = "<input type='text' id='row_cnt' name='row_cnt' value=''/>";
+            objCell_Cnt.innerHTML = row_cnt;
             
             //Price
             var objCell_Price= objRow.insertCell();
-            objCell_Price.innerHTML = "<input type='text' id='row_price' name='row_price' value=''/>";
+            objCell_Price.innerHTML = row_price;
 
             //Requestor
             var objCell_Rt= objRow.insertCell();
-            objCell_Rt.innerHTML = "<input type='text' id='row_rt' name='row_rt' value=''/>";
+            objCell_Rt.innerHTML = row_rt;
 
             //Supply Purpose (Distinct)
             var objCell_Dnt = objRow.insertCell();
-            objCell_Dnt.innerHTML = 
-                "반품<input type='radio' id='row_dnt' name='row_dnt' value='반품'/>" + 
-                "본사<input type='radio' id='row_dnt' name='row_dnt' value='본사'/>" + 
-                "기타<input type='radio' id='row_dnt' name='row_dnt' value='기타'/>";
+            objCell_Dnt.innerHTML = row_dnt;
 
             //Payment
             var objCell_Pmt = objRow.insertCell();
-            objCell_Pmt.innerHTML = 
-                "현금<input type='radio' id='row_pmt' name='row_pmt' value=''/>" + 
-                "카드<input type='radio' id='row_pmt' name='row_pmt' value=''/>" +
-                "외상<input type='radio' id='row_pmt' name='row_pmt' value=''/>";
+            objCell_Pmt.innerHTML = row_pmt;
 
             //Supplier
             var objCell_Sup = objRow.insertCell();
-            objCell_Sup.innerHTML = "<input type='text' id='row_sup' name='row_sup' value=''/>";
+            objCell_Sup.innerHTML = row_sup;
 
             //Note
             var objCell_Void = objRow.insertCell();
-            objCell_Void.innerHTML = "<input type='text' id='row_void' name='row_void' value=''/>";
+            objCell_Void.innerHTML = row_void;
         }
         deleteOrderList = () => {
             count--;
@@ -170,9 +172,7 @@
 
         requestItemList = async () => {
             var searchItem = document.getElementById('searchitem').value;
-            var value = document.getElementById('requestItemListBtn').value;
-            var data = document.getElementById(value);
-            console.log('data', data)
+            var item_nm = document.getElementById('item_nm')
             const response = await fetch ('http://localhost:3000/requestItemList', {
                 method: 'POST',
                 headers : {
@@ -185,7 +185,8 @@
             console.log('json', json[0])
             if (response.ok) {
                 var newDiv = document.createElement('div');
-                data.innerHTML = json[0]
+                item_nm.setAttribute('value', json[0])
+                item_nm.innerHTML = json[0]
             }
         }
 
@@ -245,9 +246,8 @@
         }
 
         openItemSearchBox = (data) => {
-            var code = `a` + data.id; 
             modal.style.display = "block";
-            document.getElementById('requestItemListBtn').setAttribute('value', code)
+            document.getElementById('requestItemListBtn').setAttribute('value', data.id)
         }
 
         
