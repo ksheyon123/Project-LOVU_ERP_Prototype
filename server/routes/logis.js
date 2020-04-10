@@ -25,8 +25,9 @@ router.get('/todaySupply', (req, res) => {
   res.render('todaySupply')
 })
 
-router.get('/getItemsList', async (req, res) => {
+router.post('/requestItemList', async (req, res) => {
   try {
+    console.log(req.body)
     itemList = [
       'GNB 화이트닝 펩타 미스트',
       'GNB 더 퍼스트 프리미엄 앰플',
