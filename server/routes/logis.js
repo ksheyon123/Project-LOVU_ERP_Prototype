@@ -1,6 +1,6 @@
 var express = require('express');
 var router = express.Router();
-
+var logisModel = require('../model/logistics');
 /* GET home page. */
 router.get('/', (req, res, next) => {
   res.render('index');
@@ -28,16 +28,20 @@ router.get('/todaySupply', (req, res) => {
 router.post('/requestItemList', async (req, res) => {
   try {
     console.log(req.body)
-    itemList = [
-      'GNB 화이트닝 펩타 미스트',
-      'GNB 더 퍼스트 프리미엄 앰플',
-      'GNB PRO6 프리미엄 마사지 크림',
-      '닥터힐럭스 하이드라리차지 스킨',
-      '닥터힐럭스 리바이탈라이즈 세럼',
-      '닥터힐럭스 리뉴얼콤플렉스 크림',
-      '닥터힐럭스 화이트 폼클렌징',
-      '닥터힐럭스 5.8 마일드 클렌저',
-    ]
+    var array = new Array();
+    var response = new Array();
+    var productList = await logisModel.requestProductList();
+    for (let value of productList) {
+      array.push(value.name)
+    }
+    for (var i = 0; i < array.length; i ++) {
+      if(array[i].indexOf(req.body.searchItem) > -1) {
+        response.push(array[i])
+      } else {
+        continue;
+      }
+    }
+    console.log(response)
     res.send(itemList)
   } catch (err) {
     console.log('err')
