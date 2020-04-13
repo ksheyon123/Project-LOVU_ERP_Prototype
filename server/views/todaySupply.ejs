@@ -106,7 +106,7 @@
 
         addOrderList = () => {
             count++;
-            var row_nm = document.getElementById('item_nm').value;
+            var row_nm = document.getElementById('item_nm').getAttribute('value');
             console.log(row_nm)
             var row_cnt = document.getElementById('item_cnt').value;
             var row_price = document.getElementById('item_price').value;
@@ -247,9 +247,25 @@
 
         openItemSearchBox = (data) => {
             modal.style.display = "block";
-            document.getElementById('requestItemListBtn').setAttribute('value', data.id)
         }
 
+        //Pre-Supplied Product List Request
+        $(document).ready( async () => {
+            try {
+                const response  = await fetch ('http://localhost:3000/requestPreSuppliedList', {
+                    method : 'GET',
+                    headers : {
+                        'Content-Type': 'application/json'
+                    }
+                })
+                var json = await response.json();
+                if (response.ok) {
+
+                }
+            } catch (err) {
+                window.alert('Warning!!')
+            }
+        })
         
     </script>
     <style>
