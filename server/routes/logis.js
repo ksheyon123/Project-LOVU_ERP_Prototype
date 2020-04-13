@@ -25,24 +25,23 @@ router.get('/todaySupply', (req, res) => {
   res.render('todaySupply')
 })
 
+//todaySupply Page, Search Product From Databaseß Router
 router.post('/requestItemList', async (req, res) => {
   try {
-    console.log(req.body)
     var array = new Array();
     var response = new Array();
     var productList = await logisModel.requestProductList();
     for (let value of productList) {
-      array.push(value.name)
+      array.push([value.name, value.volume])
     }
     for (var i = 0; i < array.length; i ++) {
-      if(array[i].indexOf(req.body.searchItem) > -1) {
+      if(array[i][0].indexOf(req.body.searchItem) > -1) {
         response.push(array[i])
       } else {
         continue;
       }
     }
-    console.log(response)
-    res.send(itemList)
+    res.send(response)
   } catch (err) {
     console.log('err')
   }

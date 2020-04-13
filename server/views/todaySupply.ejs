@@ -17,6 +17,10 @@
                 <div id='item_nm'></div>
             </p>
             <p>
+                용량 : 
+                <div id='item_cp'></div>
+            </p>
+            <p>
                 수량 : <input type='text' id='item_cnt' name='item_cnt' value=''>
             </p>
             <p>
@@ -88,6 +92,8 @@
         <p>
             <input type='text' id='searchitem' name='searchitem'>
             <button id='requestItemListBtn' onclick='requestItemList()'>조회</button>
+
+            <div id='responseitem'></div>
         </p>
     </div>
   
@@ -106,8 +112,8 @@
 
         addOrderList = () => {
             count++;
-            var row_nm = document.getElementById('item_nm').getAttribute('value');
-            console.log(row_nm)
+            var row_nm = document.getElementById('item_nm').childNodes[0].textContent;
+            var row_cp = document.getElementById('item_cp').childNodes[0].textContent;
             var row_cnt = document.getElementById('item_cnt').value;
             var row_price = document.getElementById('item_price').value;
             var row_rt = document.getElementById('item_rt').value;
@@ -129,7 +135,7 @@
 
             //Product Capacity(Volume)
             var objCell_Cp = objRow.insertCell();
-            objCell_Cp.innerHTML = null;
+            objCell_Cp.innerHTML = row_cp;
 
             //Product Count
             var objCell_Cnt= objRow.insertCell();
@@ -172,7 +178,7 @@
 
         requestItemList = async () => {
             var searchItem = document.getElementById('searchitem').value;
-            var item_nm = document.getElementById('item_nm')
+            var responseItem = document.getElementById('responseitem');
             const response = await fetch ('http://localhost:3000/requestItemList', {
                 method: 'POST',
                 headers : {
@@ -184,10 +190,26 @@
             var json = await response.json();
             console.log('json', json[0])
             if (response.ok) {
-                var newDiv = document.createElement('div');
-                item_nm.setAttribute('value', json[0])
-                item_nm.innerHTML = json[0]
+                if(json[0] == undefined) {
+                    window.alert('조회한 제품이 존재하지 않습니다')
+                } else {   
+                    for (var i = 0; i < json.length; i++) {
+                        var newP = document.createElement('p');
+                        newP.innerHTML = "<button type='button' onclick='getfunction(" +`${JSON.stringify(json[i])}` + ")'>" + "선택" + "</button>" + json[i][0];
+                        var data = newP;
+                        responseItem.append(data);
+                    }
+                }
             }
+        }
+
+        getfunction = (data) => {
+            console.log(data)
+            var item_nm = document.getElementById('item_nm')
+            var item_cp = document.getElementById('item_cp')
+
+            item_nm.innerHTML = data[0];
+            item_cp.innerHTML = data[1];
         }
 
         //Put Supply List To Database
@@ -196,18 +218,22 @@
                 var tblContent = document.getElementById('tblShow');
                 var tblData = tblContent.childNodes;
                 var array = new Array();
-                console.log(tblData)
+                console.log(tblData[1].cells[1].childNodes[0].textContent)
                 if (tblContent.rows.length == 0) {
                     window.alert('주문을 요청할 상품을 기록해주세요')
                 } else {
                     for (var i = 1; i < tblData.length; i++) {
-                        console.log(tblData[i].cells[1].getElementsByTagName('input'))
-                        var cellNm = tblData[i].cells[1].getElementsByTagName('input')[0].value;
-                        var cellCp = tblData[i].cells[2].getElementsByTagName('input')[0].value;
-                        var cellCnt = tblData[i].cells[3].getElementsByTagName('input')[0].value;
-                        var cellPrice = tblData[i].cells[4].getElementsByTagName('input')[0].value;
-                        var cellVoid = tblData[i].cells[5].getElementsByTagName('input')[0].value;
-                        array.push({cellNum : cellNum, cellNm : cellNm, cellCp : cellCp, cellCnt : cellCnt, cellPrice : cellPrice, cellVoid : cellVoid})
+                        var cellNm = tblData[i].cells[1].childNodes[0].textContent;
+                        var cellCp = tblData[i].cells[2].childNodes[0].textContent;
+                        var cellCnt = tblData[i].cells[3].childNodes[0].textContent;
+                        var cellPrice = tblData[i].cells[4].childNodes[0].textContent;
+                        var cellRt = tblData[i].cells[5].childNodes[0].textContent;
+                        var cellDnt = tblData[i].cells[6].childNodes[0].textContent;
+                        var cellPmt = tblData[i].cells[8].childNodes[0].textContent;
+                        var cellSup = tblData[i].cells[9].childNodes[0].textContent;
+                        var cellVoid = tblData[i].cells[9].childNodes[0].textContent;
+
+                        array.push({cellNm : cellNm, cellCp : cellCp, cellCnt : cellCnt, cellPrice : cellPrice, cellRt : cellRt, cellDnt : cellDnt, cellPmt : cellPmt, cellSup : cellSup, cellVoid : cellVoid })
                     }
 
                     const response = await fetch('http://localhost:3000/putRequestToDB', {
@@ -220,7 +246,7 @@
                     
                     if (response.ok) {
                         window.alert('주문이 요청되었습니다')
-                        location.reload();
+                        // location.reload();
                     }
                 }
             } catch (err) {
