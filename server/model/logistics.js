@@ -15,6 +15,17 @@ class Product {
             }
         )
     }
+    putSupplyListToDB(data) {
+        return new Promise (
+            async (resolve, reject) => {
+                try {
+                    
+                } catch (err) {
+
+                }
+            }
+        )
+    }
 }
 
 module.exports = new Product();
