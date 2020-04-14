@@ -13,11 +13,7 @@ router.get('/requestLogis', (req, res) => {
 
 router.post('/putRequestToDB', async (req, res) => {
   try {
-    console.log(req.body.data);
     var raw = req.body.data;
-    
-
-
     // Need to Classify Raw Data. 
     // For example, Product Code A001 [cellDnt 1, Qty], [cellDnt 2, Qty], [cellDnt 3, Qty]
     // Product Code A016 [cellDnt 1, Qty], [cellDnt 2, Qty], [cellDnt 3, Qty]
@@ -41,8 +37,8 @@ router.post('/requestItemList', async (req, res) => {
     for (let value of productList) {
       array.push([value.code, value.name, value.volume])
     }
-    for (var i = 0; i < array.length; i ++) {
-      if(array[i][1].indexOf(req.body.searchItem) > -1) {
+    for (var i = 0; i < array.length; i++) {
+      if (array[i][1].indexOf(req.body.searchItem) > -1) {
         response.push(array[i])
       } else {
         continue;
