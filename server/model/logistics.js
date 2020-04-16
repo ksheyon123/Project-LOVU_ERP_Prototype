@@ -29,6 +29,7 @@ class Product {
                     var uniqueProductsCodes = Array.from(new Set(productCodes));
                     var groupObj = new Object();
 
+                    console.log(uniqueProductsCodes)
                     uniqueProductsCodes.map((data) => {
                         groupObj[data] = {
                             recall : null,
@@ -38,16 +39,16 @@ class Product {
                     })
                     console.log('groupObj', groupObj);
                     for (var x = 0; x < uniqueProductsCodes.length; x++) {
-                        var distinctGroup = new Array();
-
+                        console.log(uniqueProductsCodes[x])
                         for (var i = 0; i < raw.length; i++) {
 
                             if (uniqueProductsCodes[x] == raw[i].cellCode) {
-                                var flags;
+                                console.log(uniqueProductsCodes[x])
                                 // Get Recall Data From Recall Table 
                                 if (raw[i].cellDnt == '반품') {
-                                    flags = 'recall';
-                                    var recallResponse = await logisConnection.query('SELECT * FROM supplyrecall')
+                                    console.log("recall")
+
+                                    var recallResponse = await logisConnection.query('SELECT * FROM supplyrecalls')
                                     if (recallResponse[0][0] == undefined) {
                                         var recallid = 'R1';
                                     } else {
@@ -55,11 +56,13 @@ class Product {
                                         var recallid = 'R' + data;
                                     }
 
-                                    await logisConnection.query('INSERT INTO supplyrecall (itemid, suprecallid, qty) VALUES (?, ?, ?)', [raw[i].cellCode, recallid, raw[i].cellCnt]);
+                                    await logisConnection.query('INSERT INTO supplyrecalls (suprecallid, qty) VALUES (?, ?)', [recallid, raw[i].cellCnt]);
                                     groupObj[uniqueProductsCodes[x]].recall = recallid;
+
                                     // Get Holdings Data From Holdings Table 
                                 } else if (raw[i].cellDnt == '본사') {
-                                    flags = 'holdings';
+                                    console.log("holdings")
+
                                     var holdingsResponse = await logisConnection.query('SELECT * FROM supplyholdings')
                                     if (holdingsResponse[0][0] == undefined) {
                                         var holdingsid = 'H1';
@@ -68,13 +71,13 @@ class Product {
                                         var holdingsid = 'H' + data;
                                     }
 
-                                    await logisConnection.query('INSERT INTO supplyholdings (itemid, supholdingsid, qty) VALUES (?, ?, ?)', [raw[i].cellCode, holdingsid, raw[i].cellCnt]);
+                                    await logisConnection.query('INSERT INTO supplyholdings (supholdingsid, qty) VALUES (?, ?)', [holdingsid, raw[i].cellCnt]);
                                     groupObj[uniqueProductsCodes[x]].holdings = holdingsid;
 
 
                                     // Get ETC Data From ETC Table
                                 } else {
-                                    flags = 'etc';
+                                    console.log("etc")
 
                                     var etcResponse = await logisConnection.query('SELECT * FROM supplyetc')
                                     if (etcResponse[0][0] == undefined) {
@@ -83,7 +86,7 @@ class Product {
                                         var data = parseInt(etcResponse[0].length) + 1;
                                         var etcid = 'E' + data;
                                     }
-                                    await logisConnection.query('INSERT INTO supplyetc (itemid, supetcid, qty) VALUES (?, ?, ?)', [raw[i].cellCode, etcid, raw[i].cellCnt]);
+                                    await logisConnection.query('INSERT INTO supplyetc (supetcid, qty) VALUES (?, ?)', [etcid, raw[i].cellCnt]);
                                     groupObj[uniqueProductsCodes[x]].etc = etcid;
                                 }
                             }
