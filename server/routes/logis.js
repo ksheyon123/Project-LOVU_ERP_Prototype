@@ -17,10 +17,21 @@ router.post('/putRequestToDB', async (req, res) => {
     // Need to Classify Raw Data. 
     // For example, Product Code A001 [cellDnt 1, Qty], [cellDnt 2, Qty], [cellDnt 3, Qty]
     // Product Code A016 [cellDnt 1, Qty], [cellDnt 2, Qty], [cellDnt 3, Qty]
-    await logisModel.putSupplyListToDB(raw)
+    var afterPutData = await logisModel.putSupplyListToDB(raw);
+    console.log('afterPutData', afterPutData)
+    res.send({response : afterPutData});
   } catch (err) {
     console.log('aas')
     console.log(err)
+  }
+});
+
+router.post('/putOrderRequestToDB', async (req, res) => {
+  try {
+    var raw = req.body.data;
+    var afterPutData = await logisModel.putOrderListToDB(raw);
+  } catch (err) {
+
   }
 })
 
@@ -52,6 +63,10 @@ router.post('/requestItemList', async (req, res) => {
 
 router.get('/todayOrder', (req, res) => {
   res.render('todayOrder')
-})
+});
+
+router.post('/requestPreSuppliedList', async (req, res) => {
+  
+});
 
 module.exports = router;
