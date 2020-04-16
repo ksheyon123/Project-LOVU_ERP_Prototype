@@ -66,7 +66,12 @@ router.get('/todayOrder', (req, res) => {
 });
 
 router.post('/requestPreSuppliedList', async (req, res) => {
-  
+  try { 
+    var raw = req.body.data;
+    await logisModel.preSuupliedList(raw);
+  } catch (err) {
+
+  }
 });
 
 module.exports = router;

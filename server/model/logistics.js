@@ -201,12 +201,13 @@ class Product {
         )
     }
 
-    insertDailyDataToDB = (data) => {
+    preSuupliedList = (data) => {
         return new Promise (
             async (resolve, reject) => {
                 try {
                     console.log(data)
-                    await logisConnection.query('INSERT INTO supplies (')
+                    var sql = 'SELECT * FROM supplies WHERE (date between ? AND ?) AND itemid=?'
+                    await logisConnection.query(sql)
                 } catch (err) {
 
                 }

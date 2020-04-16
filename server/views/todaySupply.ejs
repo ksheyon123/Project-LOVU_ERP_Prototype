@@ -87,7 +87,41 @@
         <p>
             입고 제품 리스트
         </p>
-        날짜 : <input type='text' >
+        날짜 : 
+        <select id="start_year" name="start_year">
+        </select>
+        <select id="start_month" name="start_month">
+            <option value="1" >1</option>
+            <option value="2" >2</option>
+            <option value="3" >3</option>
+            <option value="4" >4</option>
+            <option value="5" >5</option>
+            <option value="6" >6</option>
+            <option value="7" >7</option>
+            <option value="8" >8</option>
+            <option value="9" >9</option>
+            <option value="10" >10</option>
+            <option value="11" >11</option>
+            <option value="12" >12</option>
+        </select>
+        <select id="start_day" name="start_day">
+        </select>	~
+        <select id="end_year" name="end_year">
+        </select>
+        <select id="end_month" name="end_month">
+            <option value="1" >1</option>
+            <option value="2" >2</option>
+            <option value="3" >3</option>
+            <option value="4" >4</option>
+            <option value="5" >5</option>
+            <option value="6" >6</option>
+            <option value="7" >7</option>
+            <option value="8" >8</option>
+            <option value="9" >9</option>
+            <option value="10" >10</option>
+            <option value="11" >11</option>
+            <option value="12" >12</option>
+        </select>	
         제품 명 : <input type='text'>
         <button type='button' onclick='preSuppliedList()'>조회</button>
         <div id='itemsList'></div>
@@ -113,7 +147,7 @@
         var year = date.getFullYear();
         var month = date.getMonth() + 1;
         var day = date.getDate();
-        var today = year + '/' + month + '/' + day;
+        var today = year + '-' + month + '-' + day;
 
         var date = document.getElementById('date');
         date.innerHTML = today;
@@ -304,6 +338,37 @@
                 }
             } catch (err) {
                 window.alert('Warning!!')
+            }
+        }
+        $(document).ready(() => {
+            var startyear = document.getElementById('start_year');
+            var endyear = document.getElementById('end_year');
+            var yearArray = new Array();
+            var start = year - 5;
+            var leapYear = [31, 29, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
+            var nonleapYear = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
+            if (year % 4 == 0) {
+                pageYear = leapYear;
+            } else {
+                pageYear = nonleapYear;
+            }
+
+            for (var i = 0; i < 5; i++) {
+                start = start + 1;
+                yearArray.push(start);
+            }
+            console.log(yearArray)
+
+            for(var j = 0; j < yearArray.length; j++) {
+                var data = document.createElement('option');
+                data.innerHTML = yearArray[j];
+                startyear.append(data);
+                
+            }
+            for(var j = 0; j < yearArray.length; j++) {
+                var data = document.createElement('option');
+                data.innerHTML = yearArray[j];
+                endyear.append(data);
             }
         })
         
