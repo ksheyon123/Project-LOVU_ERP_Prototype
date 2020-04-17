@@ -122,7 +122,9 @@
             <option value="11" >11</option>
             <option value="12" >12</option>
         </select>	
-        제품 명 : <input type='text'>
+        <select id="end_day" name="end_day">
+        </select>
+        제품 명 : <input type='text' id='preSuppliedItemName' name='preSuppliedItemName'>
         <button type='button' onclick='preSuppliedList()'>조회</button>
         <div id='itemsList'></div>
         <!-- The Modal -->
@@ -325,12 +327,21 @@
 
         //Pre-Supplied Product List Request
         preSuppliedList = async () => {
+            var startYear = $('#start_year option:selected').val();
+            var startMonth = $('#start_month option:selected').val();
+            var startDay = $('#start_day option:selected').val();
+            var endYear = $('#end_year option:selected').val();
+            var endMonth = $('#end_month option:selected').val();
+            var endDay = $('#end_day option:selected').val();
+            var itemName = document.getElementById('preSuppliedItemName').value;
+
             try {
                 const response  = await fetch ('http://localhost:3000/requestPreSuppliedList', {
                     method : 'POST',
                     headers : {
                         'Content-Type': 'application/json'
-                    }
+                    },
+                    body : JSON.stringify({startYear : startYear, startMonth : startMonth, startDay : startDay, endYear : endYear, endMonth : endMonth, endDay : endDay, itemName : itemName})
                 })
                 var json = await response.json();
                 if (response.ok) {
@@ -345,19 +356,12 @@
             var endyear = document.getElementById('end_year');
             var yearArray = new Array();
             var start = year - 5;
-            var leapYear = [31, 29, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
-            var nonleapYear = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
-            if (year % 4 == 0) {
-                pageYear = leapYear;
-            } else {
-                pageYear = nonleapYear;
-            }
 
-            for (var i = 0; i < 5; i++) {
+            for (var i = 0 ; i < 5; i++) {
                 start = start + 1;
                 yearArray.push(start);
             }
-            console.log(yearArray)
+            console.log(yearArray);
 
             for(var j = 0; j < yearArray.length; j++) {
                 var data = document.createElement('option');
@@ -370,6 +374,52 @@
                 data.innerHTML = yearArray[j];
                 endyear.append(data);
             }
+
+
+        })
+
+        $('#start_month').change(() => {
+            var selectedYear = $('#start_year option:selected').val();
+            var selectedMonth = $('#start_month option:selected').val();
+            var startDay = document.getElementById('start_day')
+            var num = parseInt(selectedMonth) - 1;
+
+            var leapYear = [31, 29, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
+            var nonleapYear = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
+            if (selectedYear % 4 == 0) {
+                pageYear = leapYear;
+            } else {
+                pageYear = nonleapYear;
+            }
+            
+            for(var j = 1; j <= pageYear[num]; j++) {
+                var data = document.createElement('option');
+                data.innerHTML = j;
+                startDay.append(data);
+            }
+
+        })
+
+        $('#end_month').change(() => {
+            var selectedYear = $('#end_year option:selected').val();
+            var selectedMonth = $('#end_month option:selected').val();
+            var startDay = document.getElementById('end_day')
+            var num = parseInt(selectedMonth) - 1;
+
+            var leapYear = [31, 29, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
+            var nonleapYear = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
+            if (selectedYear % 4 == 0) {
+                pageYear = leapYear;
+            } else {
+                pageYear = nonleapYear;
+            }
+            
+            for(var j = 1; j <= pageYear[num]; j++) {
+                var data = document.createElement('option');
+                data.innerHTML = j;
+                startDay.append(data);
+            }
+
         })
         
     </script>

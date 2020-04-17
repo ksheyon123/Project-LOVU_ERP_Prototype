@@ -201,15 +201,37 @@ class Product {
         )
     }
 
-    preSuupliedList = (data) => {
+    preSuppliedList = (data) => {
         return new Promise (
             async (resolve, reject) => {
                 try {
-                    console.log(data)
-                    var sql = 'SELECT * FROM supplies WHERE (date between ? AND ?) AND itemid=?'
-                    await logisConnection.query(sql)
-                } catch (err) {
+                    var startDate = data.startYear + '-' + data.startMonth + '-' + data.startDay;
+                    var endDate = data.endYear + '-' + data.endMonth + '-' +data.endDay;
+                    var objResponse = new Object();
+                    var itemCode = 'A073';
+                    var sql1 = 'SELECT qty FROM supplyrecalls WHERE suprecallid IN (SELECT suprecallid FROM supplydistinct WHERE distinctid IN (SELECT distinctid FROM supplies WHERE (date BETWEEN ? AND ?) AND itemid = ?))'
+                    var response1 = await logisConnection.query(sql1,[startDate, endDate, itemCode])
 
+                    var sql2 = 'SELECT qty FROM supplyholdings WHERE supholdingsid IN (SELECT supholdingsid FROM supplydistinct WHERE distinctid IN (SELECT distinctid FROM supplies WHERE (date BETWEEN ? AND ?) AND itemid = ?))'
+                    var response2 = await logisConnection.query(sql2,[startDate, endDate, itemCode])
+
+                    var sql3 = 'SELECT qty FROM supplyetc WHERE supetcid IN (SELECT supetcid FROM supplydistinct WHERE distinctid IN (SELECT distinctid FROM supplies WHERE (date BETWEEN ? AND ?) AND itemid = ?))'
+                    var response3 = await logisConnection.query(sql3,[startDate, endDate, itemCode])
+                    if (response1[0][0] == undefined) {
+                        response1[0][0] = null;
+                    }
+                    if (response2[0][0] == undefined) {
+                        response2[0][0] = null;
+                    }
+                    if (response3[0][0] == undefined) {
+                        response3[0][0] = null;
+                    }
+                    objResponse.recall = response1[0][0];
+                    objResponse.holdings = response2[0][0];
+                    objResponse.etc = response3[0][0];
+                    resolve(objResponse);
+                } catch (err) {
+                    reject(err)
                 }
             }
         )
