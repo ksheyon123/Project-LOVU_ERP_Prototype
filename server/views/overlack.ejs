@@ -8,9 +8,105 @@
     </head>
     <body>
         <h1>과부족 이력을 작성해 주세요</h1>
-<<<<<<< HEAD
-        
-=======
->>>>>>> 3ca5bf150539a590925d8741c9d4aed4a75a4f40
+        <div>
+            <p>
+                과부족 상품 조회
+                <button type='button' id='item'>상품 조회</button>
+            </p>
+
+        </div>
+
+        <div id="searchBox" class="modal">
+
+            <!-- Modal content -->
+            <div class="searchBox-content">
+            <span class="close">&times;</span>
+            <p>
+                <input type='text' id='searchitem' name='searchitem'>
+                <button id='requestItemListBtn' onclick='requestItemList()'>조회</button>
+    
+                <div id='responseitem'></div>
+            </p>
+        </div>
     </body>
+    <script src='/javascripts/modal.js'></script>
+    <script>
+    requestItemList = async () => {
+            var searchItem = document.getElementById('searchitem').value;
+            var responseItem = document.getElementById('responseitem');
+            const response = await fetch ('http://localhost:3000/requestItemList', {
+                method: 'POST',
+                headers : {
+                    'Content-Type': 'application/json'
+                },
+                body : JSON.stringify({ searchItem })
+            })
+            
+            var json = await response.json();
+            console.log('json', json[0])
+            if (response.ok) {
+                if(json[0] == undefined) {
+                    window.alert('조회한 제품이 존재하지 않습니다')
+                } else {   
+                    for (var i = 0; i < json.length; i++) {
+                        var newP = document.createElement('p');
+                        newP.innerHTML = "<button type='button' onclick='getfunction(" +`${JSON.stringify(json[i])}` + ")'>" + "선택" + "</button>" + json[i][1];
+                        var data = newP;
+                        responseItem.append(data);
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        .dropdown-content {
+            display: none;
+            position: absolute;
+            background-color: #f6f6f6;
+            min-width: 230px;
+            overflow: auto;
+            border: 1px solid #ddd;
+            z-index: 1;
+        }
+        .show {
+            display: block;
+        }
+        .modal {
+            display: none; /* Hidden by default */
+            position: fixed; /* Stay in place */
+            z-index: 1; /* Sit on top */
+            padding-top: 100px; /* Location of the box */
+            left: 0;
+            top: 0;
+            width: 100%; /* Full width */
+            height: 100%; /* Full height */
+            overflow: auto; /* Enable scroll if needed */
+            background-color: rgb(0,0,0); /* Fallback color */
+            background-color: rgba(0,0,0,0.4); /* Black w/ opacity */
+        }
+
+        /* Modal Content */
+        .searchBox-content {
+            background-color: #fefefe;
+            margin: auto;
+            padding: 20px;
+            border: 1px solid #888;
+            width: 80%;
+        }
+
+        /* The Close Button */
+        .close {
+            color: #aaaaaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+        }
+
+        .close:hover,
+        .close:focus {
+            color: #000;
+            text-decoration: none;
+            cursor: pointer;
+        }
+    </style>
 </html>

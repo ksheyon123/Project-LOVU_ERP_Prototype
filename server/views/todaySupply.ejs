@@ -5,6 +5,7 @@
         src="https://code.jquery.com/jquery-3.4.1.js"
         integrity="sha256-WpOohJOqMqqyKL9FccASB9O0KwACQJpFTUBLTYOVvVU="
         crossorigin="anonymous"></script>
+
     </head>
     <body>
         <h1>금일 입고 제품을 기입해주세요</h1>
@@ -13,7 +14,7 @@
                 입고 일자 : <div id='date'></div>
             </p>
             <p>
-                제품명 : <input type='button' id='item' name='item' value='상품 조회' onclick='openItemSearchBox(this)'>
+                제품명 : <input type='button' id='item' name='item' value='상품 조회'>
                 <div id='item_nm'></div>
             </p>
             <p>
@@ -190,6 +191,7 @@
   
   </div>
     </body>
+    <script src='/javascripts/modal.js'></script>
     <script>
         var count = 0;
         var date = new Date();
@@ -350,27 +352,7 @@
             }
         }
 
-        //From Here Search Box Related Functions!!
-        var modal = document.getElementById("searchBox");
-
-        // Get the <span> element that closes the modal
-        var span = document.getElementsByClassName("close")[0];
-
-        // When the user clicks on <span> (x), close the modal
-        span.onclick = function() {
-            modal.style.display = "none";
-        }
-
-        // When the user clicks anywhere outside of the modal, close it
-        window.onclick = function(event) {
-            if (event.target == modal) {
-                modal.style.display = "none";
-            }
-        }
-
-        openItemSearchBox = (data) => {
-            modal.style.display = "block";
-        }
+        
 
         //Pre-Supplied Product List Request
         preSuppliedList = async () => {
