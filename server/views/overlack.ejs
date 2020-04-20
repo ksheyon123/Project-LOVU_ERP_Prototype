@@ -70,36 +70,12 @@
             <select id="start_year" name="start_year">
             </select>
             <select id="start_month" name="start_month">
-                <option value="1" >1</option>
-                <option value="2" >2</option>
-                <option value="3" >3</option>
-                <option value="4" >4</option>
-                <option value="5" >5</option>
-                <option value="6" >6</option>
-                <option value="7" >7</option>
-                <option value="8" >8</option>
-                <option value="9" >9</option>
-                <option value="10" >10</option>
-                <option value="11" >11</option>
-                <option value="12" >12</option>
             </select>
             <select id="start_day" name="start_day">
             </select>	~
             <select id="end_year" name="end_year">
             </select>
             <select id="end_month" name="end_month">
-                <option value="1" >1</option>
-                <option value="2" >2</option>
-                <option value="3" >3</option>
-                <option value="4" >4</option>
-                <option value="5" >5</option>
-                <option value="6" >6</option>
-                <option value="7" >7</option>
-                <option value="8" >8</option>
-                <option value="9" >9</option>
-                <option value="10" >10</option>
-                <option value="11" >11</option>
-                <option value="12" >12</option>
             </select>	
             <select id="end_day" name="end_day">
             </select>
@@ -107,52 +83,6 @@
             제품 명 : <input type='text' id='preSuppliedItemName' name='preSuppliedItemName'>
             <button type='button' onclick='preSuppliedList()'>조회</button>
             <div id='itemsList'></div>
-    
-            <h3>기간 조회</h3>
-            날짜 : 
-            <select id="start_year" name="start_year">
-            </select>
-            <select id="start_month" name="start_month">
-                <option value="1" >1</option>
-                <option value="2" >2</option>
-                <option value="3" >3</option>
-                <option value="4" >4</option>
-                <option value="5" >5</option>
-                <option value="6" >6</option>
-                <option value="7" >7</option>
-                <option value="8" >8</option>
-                <option value="9" >9</option>
-                <option value="10" >10</option>
-                <option value="11" >11</option>
-                <option value="12" >12</option>
-            </select>
-            <select id="start_day" name="start_day">
-            </select>	~
-            <select id="end_year" name="end_year">
-            </select>
-            <select id="end_month" name="end_month">
-                <option value="1" >1</option>
-                <option value="2" >2</option>
-                <option value="3" >3</option>
-                <option value="4" >4</option>
-                <option value="5" >5</option>
-                <option value="6" >6</option>
-                <option value="7" >7</option>
-                <option value="8" >8</option>
-                <option value="9" >9</option>
-                <option value="10" >10</option>
-                <option value="11" >11</option>
-                <option value="12" >12</option>
-            </select>	
-            <select id="end_day" name="end_day">
-            </select>
-    
-            <h3>제품 명 조회</h3>
-            제품 명 : <input type='text' id='preSuppliedItemName' name='preSuppliedItemName'>
-            <button type='button' onclick='preSuppliedList()'>조회</button>
-
-
-
         <div id="searchBox" class="modal">
 
             <!-- Modal content -->
@@ -265,6 +195,7 @@
             item_cp.innerHTML = data[2];
         }
     </script>
+    <script src='/javascripts/period.js'></script>
     <style>
         .dropdown-content {
             display: none;

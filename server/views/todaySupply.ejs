@@ -94,36 +94,12 @@
         <select id="start_year" name="start_year">
         </select>
         <select id="start_month" name="start_month">
-            <option value="1" >1</option>
-            <option value="2" >2</option>
-            <option value="3" >3</option>
-            <option value="4" >4</option>
-            <option value="5" >5</option>
-            <option value="6" >6</option>
-            <option value="7" >7</option>
-            <option value="8" >8</option>
-            <option value="9" >9</option>
-            <option value="10" >10</option>
-            <option value="11" >11</option>
-            <option value="12" >12</option>
         </select>
         <select id="start_day" name="start_day">
         </select>	~
         <select id="end_year" name="end_year">
         </select>
         <select id="end_month" name="end_month">
-            <option value="1" >1</option>
-            <option value="2" >2</option>
-            <option value="3" >3</option>
-            <option value="4" >4</option>
-            <option value="5" >5</option>
-            <option value="6" >6</option>
-            <option value="7" >7</option>
-            <option value="8" >8</option>
-            <option value="9" >9</option>
-            <option value="10" >10</option>
-            <option value="11" >11</option>
-            <option value="12" >12</option>
         </select>	
         <select id="end_day" name="end_day">
         </select>
@@ -131,49 +107,6 @@
         제품 명 : <input type='text' id='preSuppliedItemName' name='preSuppliedItemName'>
         <button type='button' onclick='preSuppliedList()'>조회</button>
         <div id='itemsList'></div>
-
-        <h3>기간 조회</h3>
-        날짜 : 
-        <select id="start_year" name="start_year">
-        </select>
-        <select id="start_month" name="start_month">
-            <option value="1" >1</option>
-            <option value="2" >2</option>
-            <option value="3" >3</option>
-            <option value="4" >4</option>
-            <option value="5" >5</option>
-            <option value="6" >6</option>
-            <option value="7" >7</option>
-            <option value="8" >8</option>
-            <option value="9" >9</option>
-            <option value="10" >10</option>
-            <option value="11" >11</option>
-            <option value="12" >12</option>
-        </select>
-        <select id="start_day" name="start_day">
-        </select>	~
-        <select id="end_year" name="end_year">
-        </select>
-        <select id="end_month" name="end_month">
-            <option value="1" >1</option>
-            <option value="2" >2</option>
-            <option value="3" >3</option>
-            <option value="4" >4</option>
-            <option value="5" >5</option>
-            <option value="6" >6</option>
-            <option value="7" >7</option>
-            <option value="8" >8</option>
-            <option value="9" >9</option>
-            <option value="10" >10</option>
-            <option value="11" >11</option>
-            <option value="12" >12</option>
-        </select>	
-        <select id="end_day" name="end_day">
-        </select>
-
-        <h3>제품 명 조회</h3>
-        제품 명 : <input type='text' id='preSuppliedItemName' name='preSuppliedItemName'>
-        <button type='button' onclick='preSuppliedList()'>조회</button>
 
         <!-- The Modal -->
     <div id="searchBox" class="modal">
@@ -352,8 +285,7 @@
             }
         }
 
-        
-
+    
         //Pre-Supplied Product List Request
         preSuppliedList = async () => {
             var startYear = $('#start_year option:selected').val();
@@ -379,79 +311,10 @@
             } catch (err) {
                 window.alert('Warning!!')
             }
-        }
-        $(document).ready(() => {
-            var startyear = document.getElementById('start_year');
-            var endyear = document.getElementById('end_year');
-            var yearArray = new Array();
-            var start = year - 5;
-
-            for (var i = 0 ; i < 5; i++) {
-                start = start + 1;
-                yearArray.push(start);
-            }
-            console.log(yearArray);
-
-            for(var j = 0; j < yearArray.length; j++) {
-                var data = document.createElement('option');
-                data.innerHTML = yearArray[j];
-                startyear.append(data);
-                
-            }
-            for(var j = 0; j < yearArray.length; j++) {
-                var data = document.createElement('option');
-                data.innerHTML = yearArray[j];
-                endyear.append(data);
-            }
-
-
-        })
-
-        $('#start_month').change(() => {
-            var selectedYear = $('#start_year option:selected').val();
-            var selectedMonth = $('#start_month option:selected').val();
-            var startDay = document.getElementById('start_day')
-            var num = parseInt(selectedMonth) - 1;
-
-            var leapYear = [31, 29, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
-            var nonleapYear = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
-            if (selectedYear % 4 == 0) {
-                pageYear = leapYear;
-            } else {
-                pageYear = nonleapYear;
-            }
-            
-            for(var j = 1; j <= pageYear[num]; j++) {
-                var data = document.createElement('option');
-                data.innerHTML = j;
-                startDay.append(data);
-            }
-
-        })
-
-        $('#end_month').change(() => {
-            var selectedYear = $('#end_year option:selected').val();
-            var selectedMonth = $('#end_month option:selected').val();
-            var startDay = document.getElementById('end_day')
-            var num = parseInt(selectedMonth) - 1;
-
-            var leapYear = [31, 29, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
-            var nonleapYear = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
-            if (selectedYear % 4 == 0) {
-                pageYear = leapYear;
-            } else {
-                pageYear = nonleapYear;
-            }
-            
-            for(var j = 1; j <= pageYear[num]; j++) {
-                var data = document.createElement('option');
-                data.innerHTML = j;
-                startDay.append(data);
-            }
-
-        })
-        
+        }      
     </script>
+        <script src='/javascripts/period.js'></script>
+
     <style>
         .dropdown-content {
             display: none;
