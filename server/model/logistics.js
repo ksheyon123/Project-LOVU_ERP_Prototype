@@ -83,7 +83,7 @@ class Product {
                             }
                         }
                     }
-
+                    console.log(raw[0].date)
                     for (var i = 0; i < uniqueProductsCodes.length; i++) {
                         var distinctResponse = await logisConnection.query('SELECT * FROM supplydistinct');
                         if (distinctResponse[0][0] == undefined) {
@@ -93,7 +93,7 @@ class Product {
                             var distinctid = 'DNT' + data;
                         }
                         groupObj[uniqueProductsCodes[i]].dnt = distinctid;
-                        await logisConnection.query('INSERT INTO supplydistinct (distinctid, itemid, suprecallid, supholdingsid, supetcid) VALUES (?, ?, ?, ?, ?)', [distinctid, uniqueProductsCodes[i], groupObj[uniqueProductsCodes[i]].recall, groupObj[uniqueProductsCodes[i]].holdings, groupObj[uniqueProductsCodes[i]].etc])
+                        await logisConnection.query('INSERT INTO supplydistinct (distinctid, date, itemid, suprecallid, supholdingsid, supetcid) VALUES (?, ?, ?, ?, ?, ?)', [distinctid, raw[0].date, uniqueProductsCodes[i], groupObj[uniqueProductsCodes[i]].recall, groupObj[uniqueProductsCodes[i]].holdings, groupObj[uniqueProductsCodes[i]].etc])
                     }
 
                     for (var i = 0; i < uniqueProductsCodes.length; i++) {
@@ -186,7 +186,7 @@ class Product {
                             var distinctid = 'DNT' + data;
                         }
                         groupObj[uniqueProductsCodes[i]].dnt = distinctid;
-                        await logisConnection.query('INSERT INTO supplydistinct (distinctid, itemid, suprecallid, supholdingsid, supetcid) VALUES (?, ?, ?, ?, ?)', [distinctid, uniqueProductsCodes[i], groupObj[uniqueProductsCodes[i]].recall, groupObj[uniqueProductsCodes[i]].holdings, groupObj[uniqueProductsCodes[i]].etc])
+                        await logisConnection.query('INSERT INTO supplydistinct (distinctid, date, itemid, suprecallid, supholdingsid, supetcid) VALUES (?, ?, ?, ?, ?)', [distinctid, uniqueProductsCodes[i], groupObj[uniqueProductsCodes[i]].recall, groupObj[uniqueProductsCodes[i]].holdings, groupObj[uniqueProductsCodes[i]].etc])
                     }
 
                     for (var i = 0; i < uniqueProductsCodes.length; i++) {
@@ -209,7 +209,7 @@ class Product {
                     var endDate = data.endYear + '-' + data.endMonth + '-' +data.endDay;
                     var objResponse = new Object();
 
-                    var sql1 = 'SELECT qty, itemid FROM supplyrecalls WHERE suprecallid IN (SELECT suprecallid FROM supplydistinct WHERE distinctid IN (SELECT distinctid FROM supplies WHERE (date BETWEEN ? AND ?)))'
+                    var sql1 = 'SELECT qty, itemid FROM supplyrecalls WHERE suprecallid IN (SELECT suprecallid FROM supplydistinct WHERE date BETWEEN ? AND ?)'
                     var response1 = await logisConnection.query(sql1,[startDate, endDate])
                     var sql2 = 'SELECT qty, itemid FROM supplyholdings WHERE supholdingsid IN (SELECT supholdingsid FROM supplydistinct WHERE distinctid IN (SELECT distinctid FROM supplies WHERE (date BETWEEN ? AND ?)))'
                     var response2 = await logisConnection.query(sql2,[startDate, endDate])
