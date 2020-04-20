@@ -42,6 +42,7 @@ router.get('/todaySupply', (req, res) => {
 //todaySupply Page, Search Product From Databaseß Router
 router.post('/requestItemList', async (req, res) => {
   try {
+    console.log(req.body)
     var array = new Array();
     var response = new Array();
     var productList = await logisModel.requestProductList();
@@ -69,7 +70,17 @@ router.post('/requestPreSuppliedList', async (req, res) => {
   try { 
     var raw = req.body;
     console.log(raw)
-    var responseResult = await logisModel.preSuppliedList(raw);
+    if (raw.itemCode == null) {
+      var responseResult = await logisModel.preSuppliedListWithoutItem(raw);
+
+    } else if (raw.startYear == null) {
+      var responseResult = await logisModel.preSuppliedListWithoutPeriod(raw);
+
+    } else {
+      var responseResult = await logisModel.preSuppliedList(raw);
+
+    }
+
     console.log(responseResult)
   } catch (err) {
     console.log(err)
@@ -78,6 +89,10 @@ router.post('/requestPreSuppliedList', async (req, res) => {
 
 router.get('/overlack', (req, res) => {
   res.render('overlack');
+});
+
+router.get('/inventoryManagement', (req, res) => {
+  res.render('inventoryManagement')
 })
 
 module.exports = router;

@@ -85,6 +85,7 @@
             <button type='button' id='requestBtn' name='requestBtn' onclick='putSupplyList()'>입고</button>
         </p>
         <hr>
+        <!-- From Here For Request pre-exist items which enrolled before-->
         <p>
             <h2>입고 제품 리스트</h2>
         </p>
@@ -103,28 +104,48 @@
         </select>	
         <select id="end_day" name="end_day">
         </select>
-        
-        제품 명 : <input type='text' id='preSuppliedItemName' name='preSuppliedItemName'>
+        <p>
+            제품 명 : <div id='preSuppliedItemName'></div>
+            제품 코드 : <div id='preSuppliedItemCode'></div>
+            <button type='button' id='inventory'>제품 조회</button>
+        </p>
         <button type='button' onclick='preSuppliedList()'>조회</button>
         <div id='itemsList'></div>
 
-        <!-- The Modal -->
-    <div id="searchBox" class="modal">
+        <!-- Modal For Searching Item -->
+        <div id="searchBox" class="modal">
+            <!-- Modal content -->
+            <div class="searchBox-content">
+                <span class="close">&times;</span>
+                <p>
+                    <input type='text' id='searchitem' name='searchitem'>
+                    <button id='requestItemListBtn' onclick='requestItemList()'>조회</button>
 
-        <!-- Modal content -->
-        <div class="searchBox-content">
-        <span class="close">&times;</span>
-        <p>
-            <input type='text' id='searchitem' name='searchitem'>
-            <button id='requestItemListBtn' onclick='requestItemList()'>조회</button>
+                    <div id='responseitem'></div>
+                </p>
+            </div>
+        </div>
+        
+        <!-- Modal For Request Inventory Item -->
+        <div id="inventoryBox" class="inventory_modal">
+                <!-- Modal content -->
+            <div class="inventoryBox-content">
+                <span class="close">&times;</span>
+                <p>
+                    <input type='text' id='inventitemname' name='inventitemname' value=''>
+                    <button id='requestInventoryItemListBtn' onclick='requestInventItemList()'>조회</button>
 
-            <div id='responseitem'></div>
-        </p>
-    </div>
-  
-  </div>
+                    <div id='resinventitem'></div>
+                </p>
+            </div>
+        </div>
+    
+    
     </body>
-    <script src='/javascripts/modal.js'></script>
+    <script src='/javascripts/searchboxModal.js'></script>
+    <script src='/javascripts/requestboxModal.js'></script>
+    <script src='/javascripts/period.js'></script>
+
     <script>
         var count = 0;
         var date = new Date();
@@ -215,7 +236,7 @@
                 headers : {
                     'Content-Type': 'application/json'
                 },
-                body : JSON.stringify({ searchItem })
+                body : JSON.stringify({ searchItem : searchItem })
             })
             
             var json = await response.json();
@@ -226,7 +247,7 @@
                 } else {   
                     for (var i = 0; i < json.length; i++) {
                         var newP = document.createElement('p');
-                        newP.innerHTML = "<button type='button' onclick='getfunction(" +`${JSON.stringify(json[i])}` + ")'>" + "선택" + "</button>" + json[i][1];
+                        newP.innerHTML = "<button type='button' onclick='putRequest(" +`${JSON.stringify(json[i])}` + ")'>" + "선택" + "</button>" + json[i][1];
                         var data = newP;
                         responseItem.append(data);
                     }
@@ -234,7 +255,7 @@
             }
         }
 
-        getfunction = (data) => {
+        putRequest = (data) => {
             console.log(data)
             var item_nm = document.getElementById('item_nm')
             var item_cp = document.getElementById('item_cp')
@@ -294,7 +315,13 @@
             var endYear = $('#end_year option:selected').val();
             var endMonth = $('#end_month option:selected').val();
             var endDay = $('#end_day option:selected').val();
-            var itemName = document.getElementById('preSuppliedItemName').value;
+            var itemCode = document.getElementById('preSuppliedItemCode');
+
+            if (itemCode.childNodes[0] == undefined) {
+                itemCode = null;
+            } else {
+                itemCode = itemCode.childNodes[0].textContent;
+            }
 
             try {
                 const response  = await fetch ('http://localhost:3000/requestPreSuppliedList', {
@@ -302,18 +329,53 @@
                     headers : {
                         'Content-Type': 'application/json'
                     },
-                    body : JSON.stringify({startYear : startYear, startMonth : startMonth, startDay : startDay, endYear : endYear, endMonth : endMonth, endDay : endDay, itemName : itemName})
+                    body : JSON.stringify({startYear : startYear, startMonth : startMonth, startDay : startDay, endYear : endYear, endMonth : endMonth, endDay : endDay, itemCode: itemCode})
                 })
                 var json = await response.json();
                 if (response.ok) {
-
+                    window.alert('조회되었습니다')
                 }
             } catch (err) {
                 window.alert('Warning!!')
             }
         }      
+
+
+        requestInventItemList = async () => {
+            var inventItem = document.getElementById('inventitemname').value;
+            var responseItem = document.getElementById('resinventitem');
+            const response = await fetch ('http://localhost:3000/requestItemList', {
+                method: 'POST',
+                headers : {
+                    'Content-Type': 'application/json'
+                },
+                body : JSON.stringify({ searchItem : inventItem })
+            })
+            
+            var json = await response.json();
+            console.log('json', json[0])
+            if (response.ok) {
+                if(json[0] == undefined) {
+                    window.alert('조회한 제품이 존재하지 않습니다')
+                } else {   
+                    for (var i = 0; i < json.length; i++) {
+                        var newP = document.createElement('p');
+                        newP.innerHTML = "<button type='button' onclick='putInventory(" +`${JSON.stringify(json[i])}` + ")'>" + "선택" + "</button>" + json[i][1];
+                        var data = newP;
+                        responseItem.append(data);
+                    }
+                }
+            }
+        }
+
+        putInventory = (data) => {
+            console.log(data)
+            var item_nm = document.getElementById('preSuppliedItemName')
+            var item_code = document.getElementById('preSuppliedItemCode')
+            item_code.innerHTML = data[0];
+            item_nm.innerHTML = data[1];
+        }
     </script>
-        <script src='/javascripts/period.js'></script>
 
     <style>
         .dropdown-content {
@@ -328,7 +390,7 @@
         .show {
             display: block;
         }
-        .modal {
+        .modal, .inventory_modal {
             display: none; /* Hidden by default */
             position: fixed; /* Stay in place */
             z-index: 1; /* Sit on top */
@@ -343,7 +405,7 @@
         }
 
         /* Modal Content */
-        .searchBox-content {
+        .searchBox-content, .inventoryBox-content {
             background-color: #fefefe;
             margin: auto;
             padding: 20px;

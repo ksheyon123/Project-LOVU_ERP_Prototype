@@ -1,5 +1,4 @@
 
-
     var date = new Date();
     var year = date.getFullYear();
     var month = date.getMonth() + 1;
@@ -17,6 +16,7 @@
     var eMonth = document.getElementById('end_month');
     var eDay = document.getElementById('end_day');
 
+    //Put Initial Value of start_year, end_year
     var nYear = year - 5;
     for (var i = 1; i <= 5; i++) {
         newOption1 = document.createElement('option');
@@ -33,6 +33,7 @@
         eYear.append(newOption2);
     }
 
+    //Put Initial Value of start_month, end_month
     for(var i = 1; i <= 12; i++) {
         newOption1 = document.createElement('option');
         newOption2 = document.createElement('option');
@@ -49,6 +50,7 @@
 
     }
 
+    ///Put Initial value of start_day, end_day
     for(var i = 1; i <= 31; i++) {
         newOption1 = document.createElement('option');
         newOption2 = document.createElement('option');
@@ -65,6 +67,8 @@
 
     }
 
+    //If User Changes Month Value, Bring selected year to distinguish whether selected year is Leap-Year or Non-Leap-Year.
+    //Based on Selected Year and Month, Set different Value of day.
     $('#start_month').change(() => {
         var sElement = document.getElementById('start_month').getElementsByTagName('option');
         var syElement = document.getElementById('start_year').value;
@@ -81,7 +85,7 @@
             var pageYear = nonleapYear;
         }
 
-        var seMonth = $('#start_month option:selected').attr('selected', 'selected');
+        $('#start_month option:selected').attr('selected', 'selected');
 
         var stMonth = $('#start_month option:selected').val();
         var stDay = $('#start_day');
@@ -109,7 +113,7 @@
             var pageYear = nonleapYear;
         }
 
-        var seMonth = $('#end_month option:selected').attr('selected', 'selected');
+        $('#end_month option:selected').attr('selected', 'selected');
 
         var stMonth = $('#end_month option:selected').val();
         var stDay = $('#end_day');
@@ -120,6 +124,8 @@
             eDay.append(newOption2);
         }
     })
+
+    // Reset Every Selected Value
     $('#start_year').change(() => {
 
         var stElement = $('#start_month');

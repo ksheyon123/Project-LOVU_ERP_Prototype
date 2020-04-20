@@ -51,7 +51,7 @@ class Product {
                                         var recallid = 'R' + data;
                                     }
 
-                                    await logisConnection.query('INSERT INTO supplyrecalls (suprecallid, qty) VALUES (?, ?)', [recallid, raw[i].cellCnt]);
+                                    await logisConnection.query('INSERT INTO supplyrecalls (itemid, suprecallid, qty) VALUES (?, ?, ?)', [raw[i].cellCode, recallid, raw[i].cellCnt]);
                                     groupObj[uniqueProductsCodes[x]].recall = recallid;
 
                                     // Get Holdings Data From Holdings Table 
@@ -64,7 +64,7 @@ class Product {
                                         var holdingsid = 'H' + data;
                                     }
 
-                                    await logisConnection.query('INSERT INTO supplyholdings (supholdingsid, qty) VALUES (?, ?)', [holdingsid, raw[i].cellCnt]);
+                                    await logisConnection.query('INSERT INTO supplyholdings (itemid, supholdingsid, qty) VALUES (?, ?, ?)', [raw[i].cellCode, holdingsid, raw[i].cellCnt]);
                                     groupObj[uniqueProductsCodes[x]].holdings = holdingsid;
 
 
@@ -77,7 +77,7 @@ class Product {
                                         var data = parseInt(etcResponse[0].length) + 1;
                                         var etcid = 'E' + data;
                                     }
-                                    await logisConnection.query('INSERT INTO supplyetc (supetcid, qty) VALUES (?, ?)', [etcid, raw[i].cellCnt]);
+                                    await logisConnection.query('INSERT INTO supplyetc (itemid, supetcid, qty) VALUES (?, ?)', [raw[i].cellCode, etcid, raw[i].cellCnt]);
                                     groupObj[uniqueProductsCodes[x]].etc = etcid;
                                 }
                             }
@@ -201,22 +201,21 @@ class Product {
         )
     }
 
-    preSuppliedList = (data) => {
+    preSuppliedListWithoutItem = (data) => {
         return new Promise (
             async (resolve, reject) => {
                 try {
                     var startDate = data.startYear + '-' + data.startMonth + '-' + data.startDay;
                     var endDate = data.endYear + '-' + data.endMonth + '-' +data.endDay;
                     var objResponse = new Object();
-                    var itemCode = 'A073';
-                    var sql1 = 'SELECT qty FROM supplyrecalls WHERE suprecallid IN (SELECT suprecallid FROM supplydistinct WHERE distinctid IN (SELECT distinctid FROM supplies WHERE (date BETWEEN ? AND ?) AND itemid = ?))'
-                    var response1 = await logisConnection.query(sql1,[startDate, endDate, itemCode])
 
-                    var sql2 = 'SELECT qty FROM supplyholdings WHERE supholdingsid IN (SELECT supholdingsid FROM supplydistinct WHERE distinctid IN (SELECT distinctid FROM supplies WHERE (date BETWEEN ? AND ?) AND itemid = ?))'
-                    var response2 = await logisConnection.query(sql2,[startDate, endDate, itemCode])
+                    var sql1 = 'SELECT qty, itemid FROM supplyrecalls WHERE suprecallid IN (SELECT suprecallid FROM supplydistinct WHERE distinctid IN (SELECT distinctid FROM supplies WHERE (date BETWEEN ? AND ?)))'
+                    var response1 = await logisConnection.query(sql1,[startDate, endDate])
+                    var sql2 = 'SELECT qty, itemid FROM supplyholdings WHERE supholdingsid IN (SELECT supholdingsid FROM supplydistinct WHERE distinctid IN (SELECT distinctid FROM supplies WHERE (date BETWEEN ? AND ?)))'
+                    var response2 = await logisConnection.query(sql2,[startDate, endDate])
+                    var sql3 = 'SELECT qty, itemid FROM supplyetc WHERE supetcid IN (SELECT supetcid FROM supplydistinct WHERE distinctid IN (SELECT distinctid FROM supplies WHERE (date BETWEEN ? AND ?)))'
+                    var response3 = await logisConnection.query(sql3,[startDate, endDate])
 
-                    var sql3 = 'SELECT qty FROM supplyetc WHERE supetcid IN (SELECT supetcid FROM supplydistinct WHERE distinctid IN (SELECT distinctid FROM supplies WHERE (date BETWEEN ? AND ?) AND itemid = ?))'
-                    var response3 = await logisConnection.query(sql3,[startDate, endDate, itemCode])
                     if (response1[0][0] == undefined) {
                         response1[0][0] = null;
                     }
@@ -226,9 +225,44 @@ class Product {
                     if (response3[0][0] == undefined) {
                         response3[0][0] = null;
                     }
-                    objResponse.recall = response1[0][0];
-                    objResponse.holdings = response2[0][0];
-                    objResponse.etc = response3[0][0];
+                    objResponse.recall = response1[0];
+                    objResponse.holdings = response2[0];
+                    objResponse.etc = response3[0];
+                    resolve(objResponse);
+                } catch (err) { 
+                    reject(err)
+                }
+            }
+        )
+    }
+
+    preSuppliedList = (data) => {
+        return new Promise (
+            async (resolve, reject) => {
+                try {
+                    var startDate = data.startYear + '-' + data.startMonth + '-' + data.startDay;
+                    var endDate = data.endYear + '-' + data.endMonth + '-' +data.endDay;
+                    var itemCode = data.itemCode;
+                    var objResponse = new Object();
+                    var sql1 = 'SELECT qty FROM supplyrecalls WHERE suprecallid IN (SELECT suprecallid FROM supplydistinct WHERE distinctid IN (SELECT distinctid FROM supplies WHERE (date BETWEEN ? AND ?) AND itemid = ?))'
+                    var response1 = await logisConnection.query(sql1,[startDate, endDate, itemCode])
+                    var sql2 = 'SELECT qty FROM supplyholdings WHERE supholdingsid IN (SELECT supholdingsid FROM supplydistinct WHERE distinctid IN (SELECT distinctid FROM supplies WHERE (date BETWEEN ? AND ?) AND itemid = ?))'
+                    var response2 = await logisConnection.query(sql2,[startDate, endDate, itemCode])
+                    var sql3 = 'SELECT qty FROM supplyetc WHERE supetcid IN (SELECT supetcid FROM supplydistinct WHERE distinctid IN (SELECT distinctid FROM supplies WHERE (date BETWEEN ? AND ?) AND itemid = ?))'
+                    var response3 = await logisConnection.query(sql3,[startDate, endDate, itemCode])
+
+                    if (response1[0][0] == undefined) {
+                        response1[0][0] = null;
+                    }
+                    if (response2[0][0] == undefined) {
+                        response2[0][0] = null;
+                    }
+                    if (response3[0][0] == undefined) {
+                        response3[0][0] = null;
+                    }
+                    objResponse.recall = response1[0];
+                    objResponse.holdings = response2[0];
+                    objResponse.etc = response3[0];
                     resolve(objResponse);
                 } catch (err) {
                     reject(err)
