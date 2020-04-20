@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html>
+    <body>
+        <p>
+            <div id='date'></div>
+            <div id='start_year'></div>
+            <div id='start_month'></div>
+            <div id='start_day'></div>
+            <div id='end_year'></div>
+            <div id='end_month'></div>
+            <div id='end_day'></div>
+        </p>
+    </body>
+    <script>
+        var date = new Date();
+        var year = date.getFullYear();
+        var month = date.getMonth() + 1;
+        var day = date.getDate();
+        var today = year + '-' + month + '-' + day;
+        var leapYear = [31, 29, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
+        var nonleapYear = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
+
+        if (selectedYear % 4 == 0) {
+            pageYear = leapYear;
+        } else {
+            pageYear = nonleapYear;
+        }
+
+        var date = document.getElementById('date');
+        date.innerHTML = today;
+
+        var sYear = document.getElementById('start_year');
+        var sMonth = document.getElementById('start_month');
+        var sDay = document.getElementById('start_day');
+
+        var eYear = document.getElementById('end_year');
+        var eMonth = document.getElementById('end_month');
+        var eDay = document.getElementById('end_day');
+
+        for(var  i = 1; i <= 12; i++) {
+
+        }
+
+    </script>
+</html>
+
+
