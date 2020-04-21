@@ -72,7 +72,7 @@ router.post('/requestPreSuppliedList', async (req, res) => {
     console.log(raw)
     if (raw.itemCode == null) {
       var responseResult = await logisModel.preSuppliedListWithoutItem(raw);
-
+      console.log(responseResult[0])
     } else if (raw.startYear == null) {
       var responseResult = await logisModel.preSuppliedListWithoutPeriod(raw);
 
@@ -81,7 +81,6 @@ router.post('/requestPreSuppliedList', async (req, res) => {
 
     }
 
-    console.log(responseResult)
   } catch (err) {
     console.log(err)
   }
