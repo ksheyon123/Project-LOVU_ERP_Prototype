@@ -72,6 +72,7 @@ router.post('/requestPreSuppliedList', async (req, res) => {
     console.log(raw)
     if (raw.itemCode == null) {
       var responseResult = await logisModel.preSuppliedListWithoutItem(raw);
+      console.log('response Data', responseResult)
     } else if (raw.startYear == null) {
       var responseResult = await logisModel.preSuppliedListWithoutPeriod(raw);
     } else {

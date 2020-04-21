@@ -204,45 +204,73 @@ class Product {
     preSuppliedListWithoutItem = (data) => {
         return new Promise (
             async (resolve, reject) => {
-                try {
-                    var startDate = data.startYear + '-' + data.startMonth + '-' + data.startDay;
-                    var endDate = data.endYear + '-' + data.endMonth + '-' +data.endDay;
-                    var objResponse = new Object();
-
-                    objResponse = {
-                        date : null,
-                        items : [
-
-                        ],
-                        supplies : {
-                            recall : [],
-                            holdings : [],
-                            etc : []
+                var startDate = data.startYear + '-' + data.startMonth + '-' + data.startDay;
+                var endDate = data.endYear + '-' + data.endMonth + '-' +data.endDay;
+                var resArray = new Array();
+                var getArray = new Array();
+                var objResponse = {
+                    date : null,
+                    items : {
+                        itemCode : null,
+                        itemName : null,
+                        itemVolume : null,
+                        objset : {
+                            recall : {
+                                id : null,
+                                qty : null
+                            },
+                            holdings : {
+                                id : null,
+                                qty : null
+                            },
+                            etc : {
+                                id : null,
+                                qty : null
+                            }
                         }
                     }
-
+                }
+                try {
+                    console.log(resArray);
                     var sql = 'SELECT DATE_FORMAT(date, "%Y-%m-%e") AS date, itemid, distinctid FROM supplyinqueries WHERE date BETWEEN ? AND ?';
                     var response = await logisConnection.query(sql , [startDate, endDate]);
-                    response[0].map( async (data) => {
-                        try {
-                            objResponse.date = data.date;
-                            var itemsResponse = await logisConnection.query('SELECT name, volume, code FROM items WHERE code = ?', [data.itemid]);
-                            objResponse.items.push(itemsResponse[0][0]);
-    
-                            var suppliesResponse1 = await logisConnection.query('SELECT suprecallid, qty FROM supplyrecalls WHERE NOT suprecallid IN (SELECT suprecallid FROM supplies WHERE distinctid= ?) is NULL ', [data.distinctid]);
-                            objResponse.supplies.recall.push(suppliesResponse1[0][0]) ;
+                    var resData = response[0];
 
-                            console.log(objResponse)
 
-                        } catch (err) {
-                            console.log(err)
+                    for (var i = 0; i < resData.length; i++) {
+                        console.log('Starting objResponse', objResponse)
+                        objResponse.date = resData[i].date;
+
+                        var itemsResponse = await logisConnection.query('SELECT name, volume, code FROM items WHERE code = ?', [resData[i].itemid]);
+                        console.log(itemsResponse[0][0])
+                        objResponse.items.itemCode = itemsResponse[0][0].code;
+                        objResponse.items.itemName = itemsResponse[0][0].name;
+                        objResponse.items.itemVolume = itemsResponse[0][0].volume;
+
+                        var presullies = await logisConnection.query('SELECT IFNULL(suprecallid, "empty") AS suprecallid FROM supplies WHERE distinctid=?', [resData[i].distinctid]);
+                        console.log('a', presullies[0][0])
+                        if (presullies[0][0].suprecallid == 'empty') {
+                            console.log('aa')
+                            objResponse.items.objset.recall.id = null;
+                            objResponse.items.objset.recall.qty = null;
+
+                        } else {
+                            var suppliesResponse1 = await logisConnection.query('SELECT suprecallid, qty FROM supplyrecalls WHERE suprecallid=?', [presullies[0][0].suprecallid]);
+                            console.log('b', suppliesResponse1[0][0])
+                            objResponse.items.objset.recall.id = suppliesResponse1[0][0].suprecallid;
+                            objResponse.items.objset.recall.qty = suppliesResponse1[0][0].qty;
                         }
-                    })
-                    console.log('objResponse', objResponse)
-                } catch (err) { 
+                        console.log('objResponse',objResponse)
+                        resArray[i] = JSON.stringify(objResponse);
+                        getArray[i] = JSON.parse(resArray[i]);
+                    }
+                    console.log(getArray)
+                    resolve(getArray)
+                } catch (err) {
                     reject(err)
+                    console.log(err)
                 }
-            }
+            } 
         )
     }
 
