@@ -1,4 +1,9 @@
 
+    
+    // start_year, start_month, start_day Element
+    // end_year, end_month, end_day Element
+    // referred 6 Element to be set
+
     var date = new Date();
     var year = date.getFullYear();
     var month = date.getMonth() + 1;
