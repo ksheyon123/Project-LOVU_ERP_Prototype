@@ -15,6 +15,28 @@ class Product {
             }
         )
     }
+
+    checkExistence = (data) => {
+        return new Promise (
+            async (resolve, reject) => {
+                try {
+                    console.log(data);
+                    var sql = 'SELECT distinctid FROM supplyinqueries WHERE date = ? AND itemid = ?';
+                    var resResult = await logisConnection.query(sql, [data.date, data.cellCode]);
+                    console.log('resResult', resResult[0])
+                    if(resResult[0] == undefined) {
+
+                    } else {
+
+                    }
+                    resolve(resResult[0]);
+                } catch (err) {
+                    reject(err)
+                }
+            }
+        )
+    }
+
     putSupplyListToDB(raw) {
         return new Promise(
             async (resolve, reject) => {
@@ -35,6 +57,7 @@ class Product {
                             etc : null,
                         }
                     })
+                    
                     for (var x = 0; x < uniqueProductsCodes.length; x++) {
                         console.log(uniqueProductsCodes[x])
                         for (var i = 0; i < raw.length; i++) {
@@ -125,7 +148,6 @@ class Product {
                             recall : null,
                             holdings : null,
                             etc : null,
-                            dnt : null,
                         }
                     })
                     for (var x = 0; x < uniqueProductsCodes.length; x++) {
@@ -134,8 +156,8 @@ class Product {
 
                             if (uniqueProductsCodes[x] == raw[i].cellCode) {
                                 // Get Recall Data From Recall Table 
-                                if (raw[i].cellDnt == '판매') {
-                                    var recallResponse = await logisConnection.query('SELECT * FROM ordercells')
+                                if (raw[i].cellDnt == '반품') {
+                                    var recallResponse = await logisConnection.query('SELECT * FROM supplyrecalls')
                                     if (recallResponse[0][0] == undefined) {
                                         var recallid = 'R1';
                                     } else {
@@ -143,7 +165,7 @@ class Product {
                                         var recallid = 'R' + data;
                                     }
 
-                                    await logisConnection.query('INSERT INTO ordercells (supcellid, qty) VALUES (?, ?)', [recallid, raw[i].cellCnt]);
+                                    await logisConnection.query('INSERT INTO supplyrecalls (suprecallid, qty) VALUES (?, ?)', [recallid, raw[i].cellCnt]);
                                     groupObj[uniqueProductsCodes[x]].recall = recallid;
 
                                     // Get Holdings Data From Holdings Table 
@@ -175,9 +197,9 @@ class Product {
                             }
                         }
                     }
-
+                    console.log(raw[0].date)
                     for (var i = 0; i < uniqueProductsCodes.length; i++) {
-                        var distinctResponse = await logisConnection.query('SELECT * FROM supplydistinct');
+                        var distinctResponse = await logisConnection.query('SELECT * FROM supplies');
                         if (distinctResponse[0][0] == undefined) {
                             var distinctid = 'DNT1';
                         } else {
@@ -185,11 +207,11 @@ class Product {
                             var distinctid = 'DNT' + data;
                         }
                         groupObj[uniqueProductsCodes[i]].dnt = distinctid;
-                        await logisConnection.query('INSERT INTO supplydistinct (distinctid, date, itemid, suprecallid, supholdingsid, supetcid) VALUES (?, ?, ?, ?, ?)', [distinctid, uniqueProductsCodes[i], groupObj[uniqueProductsCodes[i]].recall, groupObj[uniqueProductsCodes[i]].holdings, groupObj[uniqueProductsCodes[i]].etc])
+                        await logisConnection.query('INSERT INTO supplies (distinctid, suprecallid, supholdingsid, supetcid) VALUES (?, ?, ?, ?)', [distinctid, groupObj[uniqueProductsCodes[i]].recall, groupObj[uniqueProductsCodes[i]].holdings, groupObj[uniqueProductsCodes[i]].etc])
                     }
 
                     for (var i = 0; i < uniqueProductsCodes.length; i++) {
-                        await logisConnection.query('INSERT INTO supplies (date, itemid, distinctid) VALUES (? ,? ,?)', [raw[0].date, uniqueProductsCodes[i], groupObj[uniqueProductsCodes[i]].dnt])
+                        await logisConnection.query('INSERT INTO supplyinqueries (date, itemid, distinctid) VALUES (? ,? ,?)', [raw[0].date, uniqueProductsCodes[i], groupObj[uniqueProductsCodes[i]].dnt])
                     }
                     resolve(1);
                 } catch (err) {

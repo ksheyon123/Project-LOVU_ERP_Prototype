@@ -11,12 +11,17 @@ router.get('/requestLogis', (req, res) => {
   res.render('requestLogis')
 });
 
-router.post('/putRequestToDB', async (req, res) => {
+router.post('/putSupplyRequestToDB', async (req, res) => {
   try {
     var raw = req.body.data;
     // Need to Classify Raw Data. 
     // For example, Product Code A001 [cellDnt 1, Qty], [cellDnt 2, Qty], [cellDnt 3, Qty]
     // Product Code A016 [cellDnt 1, Qty], [cellDnt 2, Qty], [cellDnt 3, Qty]
+
+    // Check 
+    await logisModel.checkExistence(raw); 
+
+
     var afterPutData = await logisModel.putSupplyListToDB(raw);
     console.log('afterPutData', afterPutData)
     res.send({response : afterPutData});
