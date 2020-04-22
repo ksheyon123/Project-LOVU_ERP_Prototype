@@ -245,7 +245,6 @@ class Product {
 
                         // If there is no data related to Recalls at Supplyrecall database
                         var prerecallsupplies = await logisConnection.query('SELECT IFNULL(suprecallid, "empty") AS suprecallid FROM supplies WHERE distinctid=?', [resData[i].distinctid]);
-                        console.log('a', prerecallsupplies[0][0])
                         if (prerecallsupplies[0][0].suprecallid == 'empty') {
                             objResponse.items.objset.recall.id = null;
                             objResponse.items.objset.recall.qty = null;

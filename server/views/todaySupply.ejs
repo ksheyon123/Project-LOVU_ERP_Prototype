@@ -111,7 +111,25 @@
         </p>
         <button type='button' onclick='preSuppliedList()'>조회</button>
         <div id='itemsList'></div>
+        
 
+        <div>
+            <table width='1500px'>
+                <tr>
+                    <td>No.</td>
+                    <td>날짜</td>
+                    <td>제품코드</td>
+                    <td>제품명</td>
+                    <td>용량</td>
+                    <td>반품</td>
+                    <td>구매</td>
+                    <td>기타</td>
+                </tr>
+                <tbody id='resTblShow'>
+
+                </tbody>
+            </table>
+        </div>
         <!-- Modal For Searching Item -->
         <div id="searchBox" class="modal">
             <!-- Modal content -->
@@ -241,7 +259,7 @@
         requestItemList = async () => {
             var searchItem = document.getElementById('searchitem').value;
             var responseItem = document.getElementById('responseitem');
-            const response = await fetch ('http://localhost:3000/requestItemList', {
+            const response = await fetch ('http://172.30.1.23:3000/requestItemList', {
                 method: 'POST',
                 headers : {
                     'Content-Type': 'application/json'
@@ -301,7 +319,7 @@
                         array.push({date : date, cellCode : cellCode, cellCnt : cellCnt, cellPrice : cellPrice, cellRt : cellRt, cellDnt : cellDnt, cellPmt : cellPmt, cellSup : cellSup, cellVoid : cellVoid })
                     }
 
-                    const response = await fetch('http://localhost:3000/putRequestToDB', {
+                    const response = await fetch('http://172.30.1.23:3000/putRequestToDB', {
                         method: 'POST',
                         headers : {
                         'Content-Type' : 'application/json',
@@ -337,7 +355,7 @@
             }
 
             try {
-                const response  = await fetch ('http://localhost:3000/requestPreSuppliedList', {
+                const response  = await fetch ('http://172.30.1.23:3000/requestPreSuppliedList', {
                     method : 'POST',
                     headers : {
                         'Content-Type': 'application/json'
@@ -345,8 +363,54 @@
                     body : JSON.stringify({startYear : startYear, startMonth : startMonth, startDay : startDay, endYear : endYear, endMonth : endMonth, endDay : endDay, itemCode: itemCode})
                 })
                 var json = await response.json();
+
                 if (response.ok) {
                     window.alert('조회되었습니다')
+                    for (var i = 0; i < json.length; i++) {
+                        var row_date = json[i].date; 
+                        var row_nm = json[i].items.itemName;
+                        var row_code = json[i].items.itemCode;
+                        var row_cp = json[i].items.itemVolume;
+                        var row_rcnt = json[i].items.objset.recall.qty;
+                        var row_hcnt = json[i].items.objset.holdings.qty;
+                        var row_ecnt = json[i].items.objset.etc.qty;
+                        
+
+                        var objRow;
+                        objRow = document.all('resTblShow').insertRow();
+
+                        //No.
+                        var objCell_Num = objRow.insertCell();
+                        objCell_Num.innerHTML = i + 1;
+
+                        //Input Date
+                        var objCell_Date = objRow.insertCell();
+                        objCell_Date.innerHTML = row_date;
+
+                        //Product Code
+                        var objCell_Code = objRow.insertCell();
+                        objCell_Code.innerHTML = row_code;
+
+                        //Product Name
+                        var objCell_Name = objRow.insertCell();
+                        objCell_Name.innerHTML = row_nm;
+
+                        //Product Capacity(Volume)
+                        var objCell_Cp = objRow.insertCell();
+                        objCell_Cp.innerHTML = row_cp;
+
+                        //Product Recall Count
+                        var objCell_rCnt= objRow.insertCell();
+                        objCell_rCnt.innerHTML = row_rcnt;
+                        
+                        //Product Recall Count
+                        var objCell_hCnt= objRow.insertCell();
+                        objCell_hCnt.innerHTML = row_hcnt;
+                        
+                        //Product Recall Count
+                        var objCell_eCnt= objRow.insertCell();
+                        objCell_eCnt.innerHTML = row_ecnt;
+                    }
                 }
             } catch (err) {
                 window.alert('Warning!!')
@@ -357,7 +421,7 @@
         requestInventItemList = async () => {
             var inventItem = document.getElementById('inventitemname').value;
             var responseItem = document.getElementById('resinventitem');
-            const response = await fetch ('http://localhost:3000/requestItemList', {
+            const response = await fetch ('http://172.30.1.23:3000/requestItemList', {
                 method: 'POST',
                 headers : {
                     'Content-Type': 'application/json'

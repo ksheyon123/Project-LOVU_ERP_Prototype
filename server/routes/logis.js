@@ -74,6 +74,7 @@ router.post('/requestPreSuppliedList', async (req, res) => {
     } else {
       var responseResult = await logisModel.preSuppliedList(raw);
     }
+    console.log(responseResult)
     res.send(responseResult)
   } catch (err) {
     console.log(err)
