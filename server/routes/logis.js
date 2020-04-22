@@ -69,16 +69,12 @@ router.get('/todayOrder', (req, res) => {
 router.post('/requestPreSuppliedList', async (req, res) => {
   try { 
     var raw = req.body;
-    console.log(raw)
     if (raw.itemCode == null) {
       var responseResult = await logisModel.preSuppliedListWithoutItem(raw);
-      console.log('response Data', responseResult)
-    } else if (raw.startYear == null) {
-      var responseResult = await logisModel.preSuppliedListWithoutPeriod(raw);
     } else {
       var responseResult = await logisModel.preSuppliedList(raw);
     }
-
+    res.send(responseResult)
   } catch (err) {
     console.log(err)
   }

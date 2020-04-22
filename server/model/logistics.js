@@ -33,7 +33,6 @@ class Product {
                             recall : null,
                             holdings : null,
                             etc : null,
-                            dnt : null,
                         }
                     })
                     for (var x = 0; x < uniqueProductsCodes.length; x++) {
@@ -231,40 +230,58 @@ class Product {
                     }
                 }
                 try {
-                    console.log(resArray);
                     var sql = 'SELECT DATE_FORMAT(date, "%Y-%m-%e") AS date, itemid, distinctid FROM supplyinqueries WHERE date BETWEEN ? AND ?';
                     var response = await logisConnection.query(sql , [startDate, endDate]);
                     var resData = response[0];
 
 
                     for (var i = 0; i < resData.length; i++) {
-                        console.log('Starting objResponse', objResponse)
                         objResponse.date = resData[i].date;
 
                         var itemsResponse = await logisConnection.query('SELECT name, volume, code FROM items WHERE code = ?', [resData[i].itemid]);
-                        console.log(itemsResponse[0][0])
                         objResponse.items.itemCode = itemsResponse[0][0].code;
                         objResponse.items.itemName = itemsResponse[0][0].name;
                         objResponse.items.itemVolume = itemsResponse[0][0].volume;
 
-                        var presullies = await logisConnection.query('SELECT IFNULL(suprecallid, "empty") AS suprecallid FROM supplies WHERE distinctid=?', [resData[i].distinctid]);
-                        console.log('a', presullies[0][0])
-                        if (presullies[0][0].suprecallid == 'empty') {
-                            console.log('aa')
+                        // If there is no data related to Recalls at Supplyrecall database
+                        var prerecallsupplies = await logisConnection.query('SELECT IFNULL(suprecallid, "empty") AS suprecallid FROM supplies WHERE distinctid=?', [resData[i].distinctid]);
+                        console.log('a', prerecallsupplies[0][0])
+                        if (prerecallsupplies[0][0].suprecallid == 'empty') {
                             objResponse.items.objset.recall.id = null;
                             objResponse.items.objset.recall.qty = null;
 
                         } else {
-                            var suppliesResponse1 = await logisConnection.query('SELECT suprecallid, qty FROM supplyrecalls WHERE suprecallid=?', [presullies[0][0].suprecallid]);
-                            console.log('b', suppliesResponse1[0][0])
+                            var suppliesResponse1 = await logisConnection.query('SELECT suprecallid, qty FROM supplyrecalls WHERE suprecallid=?', [prerecallsupplies[0][0].suprecallid]);
                             objResponse.items.objset.recall.id = suppliesResponse1[0][0].suprecallid;
                             objResponse.items.objset.recall.qty = suppliesResponse1[0][0].qty;
                         }
-                        console.log('objResponse',objResponse)
+
+                        // If there is no data related to Holdings at Supplyholdings database
+                        var preholdingssupplies = await logisConnection.query('SELECT IFNULL(supholdingsid, "empty") AS supholdingsid FROM supplies WHERE distinctid=?', [resData[i].distinctid]);
+                        if (preholdingssupplies[0][0].supholdingsid == 'empty') {
+                            objResponse.items.objset.holdings.id = null;
+                            objResponse.items.objset.holdings.qty = null;
+
+                        } else {
+                            var suppliesResponse2 = await logisConnection.query('SELECT supholdingsid, qty FROM supplyholdings WHERE supholdingsid=?', [preholdingssupplies[0][0].supholdingsid]);
+                            objResponse.items.objset.holdings.id = suppliesResponse2[0][0].supholdingsid;
+                            objResponse.items.objset.holdings.qty = suppliesResponse2[0][0].qty;
+                        }
+
+                        // If there is no data related to ETC at Supplyetc database
+                        var prerecallsupplies = await logisConnection.query('SELECT IFNULL(supetcid, "empty") AS supetcid FROM supplies WHERE distinctid=?', [resData[i].distinctid]);
+                        if (prerecallsupplies[0][0].supetcid == 'empty') {
+                            objResponse.items.objset.etc.id = null;
+                            objResponse.items.objset.etc.qty = null;
+
+                        } else {
+                            var suppliesResponse3 = await logisConnection.query('SELECT supetcid, qty FROM supplyetc WHERE supetcid=?', [prerecallsupplies[0][0].supetcid]);
+                            objResponse.items.objset.etc.id = suppliesResponse3[0][0].supetcid;
+                            objResponse.items.objset.etc.qty = suppliesResponse3[0][0].qty;
+                        }
                         resArray[i] = JSON.stringify(objResponse);
                         getArray[i] = JSON.parse(resArray[i]);
                     }
-                    console.log(getArray)
                     resolve(getArray)
                 } catch (err) {
                     reject(err)
@@ -277,31 +294,84 @@ class Product {
     preSuppliedList = (data) => {
         return new Promise (
             async (resolve, reject) => {
-                try {
-                    var startDate = data.startYear + '-' + data.startMonth + '-' + data.startDay;
-                    var endDate = data.endYear + '-' + data.endMonth + '-' +data.endDay;
-                    var itemCode = data.itemCode;
-                    var objResponse = new Object();
-                    var sql1 = 'SELECT qty FROM supplyrecalls WHERE suprecallid IN (SELECT suprecallid FROM supplydistinct WHERE distinctid IN (SELECT distinctid FROM supplies WHERE (date BETWEEN ? AND ?) AND itemid = ?))'
-                    var response1 = await logisConnection.query(sql1,[startDate, endDate, itemCode])
-                    var sql2 = 'SELECT qty FROM supplyholdings WHERE supholdingsid IN (SELECT supholdingsid FROM supplydistinct WHERE distinctid IN (SELECT distinctid FROM supplies WHERE (date BETWEEN ? AND ?) AND itemid = ?))'
-                    var response2 = await logisConnection.query(sql2,[startDate, endDate, itemCode])
-                    var sql3 = 'SELECT qty FROM supplyetc WHERE supetcid IN (SELECT supetcid FROM supplydistinct WHERE distinctid IN (SELECT distinctid FROM supplies WHERE (date BETWEEN ? AND ?) AND itemid = ?))'
-                    var response3 = await logisConnection.query(sql3,[startDate, endDate, itemCode])
+                var startDate = data.startYear + '-' + data.startMonth + '-' + data.startDay;
+                var endDate = data.endYear + '-' + data.endMonth + '-' +data.endDay;
+                var resArray = new Array();
+                var getArray = new Array();
+                var objResponse = {
+                    date : null,
+                    items : {
+                        itemCode : null,
+                        itemName : null,
+                        itemVolume : null,
+                        objset : {
+                            recall : {
+                                id : null,
+                                qty : null
+                            },
+                            holdings : {
+                                id : null,
+                                qty : null
+                            },
+                            etc : {
+                                id : null,
+                                qty : null
+                            }
+                        }
+                    }
+                }
 
-                    if (response1[0][0] == undefined) {
-                        response1[0][0] = null;
+                try {
+                    var sql = 'SELECT DATE_FORMAT(date, "%Y-%m-%e") AS date, itemid, distinctid FROM supplyinqueries WHERE (date BETWEEN ? AND ?) AND itemid = ?';
+                    var response = await logisConnection.query(sql , [startDate, endDate, data.itemCode]);
+                    var resData = response[0];
+                    for (var i = 0; i < resData.length; i++) {
+                        objResponse.date = resData[i].date;
+
+                        var itemsResponse = await logisConnection.query('SELECT name, volume, code FROM items WHERE code = ?', [resData[i].itemid]);
+                        objResponse.items.itemCode = itemsResponse[0][0].code;
+                        objResponse.items.itemName = itemsResponse[0][0].name;
+                        objResponse.items.itemVolume = itemsResponse[0][0].volume;
+                        
+                        // If there is no data related to Recall at Supplyrecalls database
+                        var prerecallsupplies = await logisConnection.query('SELECT IFNULL(suprecallid, "empty") AS suprecallid FROM supplies WHERE distinctid=?', [resData[i].distinctid]);
+                        if (prerecallsupplies[0][0].suprecallid == 'empty') {
+                            objResponse.items.objset.recall.id = null;
+                            objResponse.items.objset.recall.qty = null;
+
+                        } else {
+                            var suppliesResponse1 = await logisConnection.query('SELECT suprecallid, qty FROM supplyrecalls WHERE suprecallid=?', [prerecallsupplies[0][0].suprecallid]);
+                            objResponse.items.objset.recall.id = suppliesResponse1[0][0].suprecallid;
+                            objResponse.items.objset.recall.qty = suppliesResponse1[0][0].qty;
+                        }
+
+                        // If there is no data related to Holdings at Supplyholdings database
+                        var preholdingssupplies = await logisConnection.query('SELECT IFNULL(supholdingsid, "empty") AS supholdingsid FROM supplies WHERE distinctid=?', [resData[i].distinctid]);
+                        if (preholdingssupplies[0][0].supholdingsid == 'empty') {
+                            objResponse.items.objset.holdings.id = null;
+                            objResponse.items.objset.holdings.qty = null;
+
+                        } else {
+                            var suppliesResponse2 = await logisConnection.query('SELECT supholdingsid, qty FROM supplyholdings WHERE supholdingsid=?', [preholdingssupplies[0][0].supholdingsid]);
+                            objResponse.items.objset.holdings.id = suppliesResponse2[0][0].supholdingsid;
+                            objResponse.items.objset.holdings.qty = suppliesResponse2[0][0].qty;
+                        }
+
+                        // If there is no data related to ETC at Supplyetc database
+                        var prerecallsupplies = await logisConnection.query('SELECT IFNULL(supetcid, "empty") AS supetcid FROM supplies WHERE distinctid=?', [resData[i].distinctid]);
+                        if (prerecallsupplies[0][0].supetcid == 'empty') {
+                            objResponse.items.objset.etc.id = null;
+                            objResponse.items.objset.etc.qty = null;
+
+                        } else {
+                            var suppliesResponse3 = await logisConnection.query('SELECT supetcid, qty FROM supplyetc WHERE supetcid=?', [prerecallsupplies[0][0].supetcid]);
+                            objResponse.items.objset.etc.id = suppliesResponse3[0][0].supetcid;
+                            objResponse.items.objset.etc.qty = suppliesResponse3[0][0].qty;
+                        }
+                        resArray[i] = JSON.stringify(objResponse);
+                        getArray[i] = JSON.parse(resArray[i]);
                     }
-                    if (response2[0][0] == undefined) {
-                        response2[0][0] = null;
-                    }
-                    if (response3[0][0] == undefined) {
-                        response3[0][0] = null;
-                    }
-                    objResponse.recall = response1[0];
-                    objResponse.holdings = response2[0];
-                    objResponse.etc = response3[0];
-                    resolve(objResponse);
+                    resolve(getArray)
                 } catch (err) {
                     reject(err)
                 }
