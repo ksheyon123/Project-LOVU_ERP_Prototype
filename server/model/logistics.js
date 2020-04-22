@@ -16,20 +16,47 @@ class Product {
         )
     }
 
-    checkExistence = (data) => {
+    checkExistence = (raw) => {
         return new Promise (
             async (resolve, reject) => {
-                try {
-                    console.log(data);
-                    var sql = 'SELECT distinctid FROM supplyinqueries WHERE date = ? AND itemid = ?';
-                    var resResult = await logisConnection.query(sql, [data.date, data.cellCode]);
-                    console.log('resResult', resResult[0])
-                    if(resResult[0] == undefined) {
+                var productCodes = new Array();
+                var resArray = new Array();
+                raw.map((data) => {
+                    productCodes.push(data.cellCode);
+                })
 
-                    } else {
+                // Eliminate Duplicated Value
+                var uniqueProductsCodes = Array.from(new Set(productCodes));
+                var objComponent = new Object();
 
+                uniqueProductsCodes.map((data) => {
+                    objComponent[data] = {
+                        recall : null,
+                        holdings : null,
+                        etc : null,
                     }
-                    resolve(resResult[0]);
+                })
+                try {
+                    for ( var i = 0; i < raw.length; i++) {
+                        var sql = 'SELECT suprecallid, supholdingsid, supetcid FROM supplies WHERE distinctid IN (SELECT distinctid FROM supplyinqueries WHERE date = ? AND itemid = ?)';
+                        var resResult = await logisConnection.query(sql, [raw[i].date, raw[i].cellCode]);
+                        console.log('#', resResult[0])
+                        for (var j = 0; j < resResult[0].length; j++) {
+                            if (resResult[0][j].suprecallid) {
+                                objComponent[raw[i].cellCode].recall = resResult[0][j].suprecallid;
+                            } 
+                            
+                            if (resResult[0][j].supholdingsid) {
+                                objComponent[raw[i].cellCode].holdings = resResult[0][j].supholdingsid;
+                            } 
+                            
+                            if (resResult[0][j].supetcid) {
+                                objComponent[raw[i].cellCode].etc = resResult[0][j].supetcid;
+                            } 
+                        }
+                    }
+                    
+                    resolve(objComponent);
                 } catch (err) {
                     reject(err)
                 }
@@ -37,91 +64,96 @@ class Product {
         )
     }
 
-    putSupplyListToDB(raw) {
+    putSupplyListToDB(data) {
         return new Promise(
             async (resolve, reject) => {
                 try {
-                    var productCodes = new Array();
-                    raw.map((data) => {
-                        productCodes.push(data.cellCode);
-                    })
+                    console.log('start', data)
+                    var uniqueProductsCodes = Object.keys(data.preset);
+                    console.log('uniqueProductsCodes', uniqueProductsCodes)
 
-                    // Eliminate Duplicated Value
-                    var uniqueProductsCodes = Array.from(new Set(productCodes));
-                    var groupObj = new Object();
-
-                    uniqueProductsCodes.map((data) => {
-                        groupObj[data] = {
-                            recall : null,
-                            holdings : null,
-                            etc : null,
-                        }
-                    })
                     
-                    for (var x = 0; x < uniqueProductsCodes.length; x++) {
-                        console.log(uniqueProductsCodes[x])
-                        for (var i = 0; i < raw.length; i++) {
+                    // var productCodes = new Array();
+                    // raw.map((data) => {
+                    //     productCodes.push(data.cellCode);
+                    // })
 
-                            if (uniqueProductsCodes[x] == raw[i].cellCode) {
-                                // Get Recall Data From Recall Table 
-                                if (raw[i].cellDnt == '반품') {
-                                    var recallResponse = await logisConnection.query('SELECT * FROM supplyrecalls')
-                                    if (recallResponse[0][0] == undefined) {
-                                        var recallid = 'R1';
-                                    } else {
-                                        var data = parseInt(recallResponse[0].length) + 1;
-                                        var recallid = 'R' + data;
-                                    }
+                    // // Eliminate Duplicated Value
+                    // var uniqueProductsCodes = Array.from(new Set(productCodes));
+                    // var groupObj = new Object();
 
-                                    await logisConnection.query('INSERT INTO supplyrecalls (suprecallid, qty) VALUES (?, ?)', [recallid, raw[i].cellCnt]);
-                                    groupObj[uniqueProductsCodes[x]].recall = recallid;
+                    // uniqueProductsCodes.map((data) => {
+                    //     groupObj[data] = {
+                    //         recall : null,
+                    //         holdings : null,
+                    //         etc : null,
+                    //     }
+                    // })
+                    
+                    // for (var x = 0; x < uniqueProductsCodes.length; x++) {
+                    //     console.log(uniqueProductsCodes[x])
+                    //     for (var i = 0; i < raw.length; i++) {
 
-                                    // Get Holdings Data From Holdings Table 
-                                } else if (raw[i].cellDnt == '본사') {
-                                    var holdingsResponse = await logisConnection.query('SELECT * FROM supplyholdings')
-                                    if (holdingsResponse[0][0] == undefined) {
-                                        var holdingsid = 'H1';
-                                    } else {
-                                        var data = parseInt(holdingsResponse[0].length) + 1;
-                                        var holdingsid = 'H' + data;
-                                    }
+                    //         if (uniqueProductsCodes[x] == raw[i].cellCode) {
+                    //             // Get Recall Data From Recall Table 
+                    //             if (raw[i].cellDnt == '반품') {
+                    //                 var recallResponse = await logisConnection.query('SELECT * FROM supplyrecalls')
+                    //                 if (recallResponse[0][0] == undefined) {
+                    //                     var recallid = 'R1';
+                    //                 } else {
+                    //                     var data = parseInt(recallResponse[0].length) + 1;
+                    //                     var recallid = 'R' + data;
+                    //                 }
 
-                                    await logisConnection.query('INSERT INTO supplyholdings (supholdingsid, qty) VALUES (?, ?)', [holdingsid, raw[i].cellCnt]);
-                                    groupObj[uniqueProductsCodes[x]].holdings = holdingsid;
+                    //                 await logisConnection.query('INSERT INTO supplyrecalls (suprecallid, qty) VALUES (?, ?)', [recallid, raw[i].cellCnt]);
+                    //                 groupObj[uniqueProductsCodes[x]].recall = recallid;
+
+                    //                 // Get Holdings Data From Holdings Table 
+                    //             } else if (raw[i].cellDnt == '본사') {
+                    //                 var holdingsResponse = await logisConnection.query('SELECT * FROM supplyholdings')
+                    //                 if (holdingsResponse[0][0] == undefined) {
+                    //                     var holdingsid = 'H1';
+                    //                 } else {
+                    //                     var data = parseInt(holdingsResponse[0].length) + 1;
+                    //                     var holdingsid = 'H' + data;
+                    //                 }
+
+                    //                 await logisConnection.query('INSERT INTO supplyholdings (supholdingsid, qty) VALUES (?, ?)', [holdingsid, raw[i].cellCnt]);
+                    //                 groupObj[uniqueProductsCodes[x]].holdings = holdingsid;
 
 
-                                    // Get ETC Data From ETC Table
-                                } else {
-                                    var etcResponse = await logisConnection.query('SELECT * FROM supplyetc')
-                                    if (etcResponse[0][0] == undefined) {
-                                        var etcid = 'E1';
-                                    } else {
-                                        var data = parseInt(etcResponse[0].length) + 1;
-                                        var etcid = 'E' + data;
-                                    }
-                                    await logisConnection.query('INSERT INTO supplyetc (supetcid, qty) VALUES (?, ?)', [etcid, raw[i].cellCnt]);
-                                    groupObj[uniqueProductsCodes[x]].etc = etcid;
-                                }
-                            }
-                        }
-                    }
-                    console.log(raw[0].date)
-                    for (var i = 0; i < uniqueProductsCodes.length; i++) {
-                        var distinctResponse = await logisConnection.query('SELECT * FROM supplies');
-                        if (distinctResponse[0][0] == undefined) {
-                            var distinctid = 'DNT1';
-                        } else {
-                            var data = parseInt(distinctResponse[0].length) + 1;
-                            var distinctid = 'DNT' + data;
-                        }
-                        groupObj[uniqueProductsCodes[i]].dnt = distinctid;
-                        await logisConnection.query('INSERT INTO supplies (distinctid, suprecallid, supholdingsid, supetcid) VALUES (?, ?, ?, ?)', [distinctid, groupObj[uniqueProductsCodes[i]].recall, groupObj[uniqueProductsCodes[i]].holdings, groupObj[uniqueProductsCodes[i]].etc])
-                    }
+                    //                 // Get ETC Data From ETC Table
+                    //             } else {
+                    //                 var etcResponse = await logisConnection.query('SELECT * FROM supplyetc')
+                    //                 if (etcResponse[0][0] == undefined) {
+                    //                     var etcid = 'E1';
+                    //                 } else {
+                    //                     var data = parseInt(etcResponse[0].length) + 1;
+                    //                     var etcid = 'E' + data;
+                    //                 }
+                    //                 await logisConnection.query('INSERT INTO supplyetc (supetcid, qty) VALUES (?, ?)', [etcid, raw[i].cellCnt]);
+                    //                 groupObj[uniqueProductsCodes[x]].etc = etcid;
+                    //             }
+                    //         }
+                    //     }
+                    // }
+                    // console.log(raw[0].date)
+                    // for (var i = 0; i < uniqueProductsCodes.length; i++) {
+                    //     var distinctResponse = await logisConnection.query('SELECT * FROM supplies');
+                    //     if (distinctResponse[0][0] == undefined) {
+                    //         var distinctid = 'DNT1';
+                    //     } else {
+                    //         var data = parseInt(distinctResponse[0].length) + 1;
+                    //         var distinctid = 'DNT' + data;
+                    //     }
+                    //     groupObj[uniqueProductsCodes[i]].dnt = distinctid;
+                    //     await logisConnection.query('INSERT INTO supplies (distinctid, suprecallid, supholdingsid, supetcid) VALUES (?, ?, ?, ?)', [distinctid, groupObj[uniqueProductsCodes[i]].recall, groupObj[uniqueProductsCodes[i]].holdings, groupObj[uniqueProductsCodes[i]].etc])
+                    // }
 
-                    for (var i = 0; i < uniqueProductsCodes.length; i++) {
-                        await logisConnection.query('INSERT INTO supplyinqueries (date, itemid, distinctid) VALUES (? ,? ,?)', [raw[0].date, uniqueProductsCodes[i], groupObj[uniqueProductsCodes[i]].dnt])
-                    }
-                    resolve(1);
+                    // for (var i = 0; i < uniqueProductsCodes.length; i++) {
+                    //     await logisConnection.query('INSERT INTO supplyinqueries (date, itemid, distinctid) VALUES (? ,? ,?)', [raw[0].date, uniqueProductsCodes[i], groupObj[uniqueProductsCodes[i]].dnt])
+                    // }
+                    // resolve(1);
                 } catch (err) {
                     console.log(err);
                     reject(err);
