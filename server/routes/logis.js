@@ -16,8 +16,6 @@ router.post('/putSupplyRequestToDB', async (req, res) => {
     var raw = req.body.data;
     var flags;
     var reObj = new Object();
-
-    
     //Re-Start
     console.log(raw);
     var resResult = await logisModel.checkExistence(raw);
@@ -37,9 +35,11 @@ router.post('/putSupplyRequestToDB', async (req, res) => {
         flags = 4;
         reObj.dataset.push(raw[i]);
       }
-      console.log(reObj);
     }
-    await logisModel.putSupplyListToDB(reObj);
+    if (reObj.dataset[0]) {
+      await logisModel.putSupplyListToDB(reObj);
+    }
+    
   } catch (err) {
     console.log('aas')
     console.log(err)

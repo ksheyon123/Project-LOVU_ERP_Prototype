@@ -16,7 +16,7 @@ class Product {
         )
     }
 
-    checkExistence = (raw) => {
+    checkExistence (raw) {
         return new Promise (
             async (resolve, reject) => {
                 var productCodes = new Array();
@@ -68,18 +68,9 @@ class Product {
         return new Promise(
             async (resolve, reject) => {
                 try {
-                    console.log('start', data)
                     var uniqueProductsCodes = Object.keys(data.preset);
-                    console.log('uniqueProductsCodes', uniqueProductsCodes)
                     var raw = data.dataset;
-
-                    // var productCodes = new Array();
-                    // raw.map((data) => {
-                    //     productCodes.push(data.cellCode);
-                    // })
-
-                    // // Eliminate Duplicated Value
-                    // var uniqueProductsCodes = Array.from(new Set(productCodes));
+                    
                     var groupObj = new Object();
 
                     uniqueProductsCodes.map((data) => {
@@ -137,46 +128,53 @@ class Product {
                             }
                         }
                     }
-
-                    console.log('groupObj', groupObj)
-                    console.log(raw[0].date)
-
                     for (var i = 0; i <uniqueProductsCodes.length; i++) {
                         var distinctResponse = await logisConnection.query('SELECT * FROM supplies');
+                        // DNT Initial, DNT Number Existence Check
+                        // If there is no Initial DNT, then go to "if(distinctResponse[0][0] == undefined)" Process
+                        // If there is Initial DNT,then go to "else" Process
                         if (distinctResponse[0][0] == undefined) {
                             var distinctid = 'DNT1';
                             groupObj[uniqueProductsCodes[i]].dnt = distinctid;
                             await logisConnection.query('INSERT INTO supplies (distinctid, suprecallid, supholdingsid, supetcid) VALUES (?, ?, ?, ?)', [distinctid, groupObj[uniqueProductsCodes[i]].recall, groupObj[uniqueProductsCodes[i]].holdings, groupObj[uniqueProductsCodes[i]].etc])
+
+                            await logisConnection.query('INSERT INTO supplyinqueries (date, itemid, distinctid) VALUES (? ,? ,?)', [raw[0].date, uniqueProductsCodes[i], groupObj[uniqueProductsCodes[i]].dnt])
+
                         } else {
+                            console.log('a')
+                            // Bring inserted data from supplies database based on Date, ItemCode
+                            // If there is pre-inserted data, then go to "if (preEx[0][0])" Process
+                            // If not then go to "else" Process 
                             var preEx = await logisConnection.query('SELECT suprecallid, supholdingsid, supetcid FROM supplies WHERE distinctid IN (SELECT distinctid FROM supplyinqueries WHERE date = ? AND itemid = ?)', [raw[0].date, uniqueProductsCodes[i]])
-                            console.log('preEx', preEx[0])
+
                             if (preEx[0][0]) {
-                                await logisConnection.query(`UPDATE supplies SET suprecallid = ${groupObj[uniqueProductsCodes[i]].recall}, supholdingsid = ${groupObj[uniqueProductsCodes[i]].holdings}, supetcid = ${groupObj[uniqueProductsCodes[i]].etc } WHERE distinctid IN (SELECT distinctid FROM supplyinqueries WHERE date = ? AND itemid = ?`, [raw[0].date, uniqueProductsCodes[i]]);
+                                console.log('b')
+
+                                if(preEx[0][0].suprecallid == null && groupObj[uniqueProductsCodes[i]].recall != null) {
+                                    console.log('1')
+                                    await logisConnection.query('UPDATE supplies SET suprecallid =? WHERE distinctid IN (SELECT distinctid FROM supplyinqueries WHERE date = ? AND itemid = ?)', [groupObj[uniqueProductsCodes[i]].recall, raw[0].date, uniqueProductsCodes[i]]);
+                                } 
+                                
+                                if (preEx[0][0].supholdingsid == null && groupObj[uniqueProductsCodes[i]].holdings != null) {
+                                    console.log('2')
+
+                                    await logisConnection.query('UPDATE supplies SET supholdingsid = ? WHERE distinctid IN (SELECT distinctid FROM supplyinqueries WHERE date = ? AND itemid = ?)', [groupObj[uniqueProductsCodes[i]].holdings, raw[0].date, uniqueProductsCodes[i]]);
+                                } 
+                                if (preEx[0][0].supetcid == null && groupObj[uniqueProductsCodes[i]].etc != null) {
+                                    console.log('3')
+
+                                    await logisConnection.query('UPDATE supplies SET supetcid = ? WHERE distinctid IN (SELECT distinctid FROM supplyinqueries WHERE date = ? AND itemid = ?)', [groupObj[uniqueProductsCodes[i]].etc, raw[0].date, uniqueProductsCodes[i]]);
+                                }
                             } else {
                                 var num = parseInt(distinctResponse[0].length) + 1;
                                 var distinctid = 'DNT' + num;
                                 groupObj[uniqueProductsCodes[i]].dnt = distinctid;
                                 await logisConnection.query('INSERT INTO supplies (distinctid, suprecallid, supholdingsid, supetcid) VALUES (?, ?, ?, ?)', [distinctid, groupObj[uniqueProductsCodes[i]].recall, groupObj[uniqueProductsCodes[i]].holdings, groupObj[uniqueProductsCodes[i]].etc]);
+
+                                await logisConnection.query('INSERT INTO supplyinqueries (date, itemid, distinctid) VALUES (? ,? ,?)', [raw[0].date, uniqueProductsCodes[i], groupObj[uniqueProductsCodes[i]].dnt])
                             }
                         }
-                    }
-
-
-                    // for (var i = 0; i < uniqueProductsCodes.length; i++) {
-                    //     // 최초 데이터 생성
-                    //     var distinctResponse = await logisConnection.query('SELECT * FROM supplies', [raw[0].date, uniqueProductsCodes[i]]);
-                    //     if (distinctResponse[0][0] == undefined) {
-                    //         var distinctid = 'DNT1';
-                    //     } else {
-                    //         var num = parseInt(distinctResponse[0].length) + 1;
-                    //         var distinctid = 'DNT' + num;
-                    //         groupObj[uniqueProductsCodes[i]].dnt = distinctid;
-                    //         await logisConnection.query('INSERT INTO supplies (distinctid, suprecallid, supholdingsid, supetcid) VALUES (?, ?, ?, ?)', [distinctid, groupObj[uniqueProductsCodes[i]].recall, groupObj[uniqueProductsCodes[i]].holdings, groupObj[uniqueProductsCodes[i]].etc])
-                    //     }
-                    // }
-
-                    for (var i = 0; i < uniqueProductsCodes.length; i++) {
-                        await logisConnection.query('INSERT INTO supplyinqueries (date, itemid, distinctid) VALUES (? ,? ,?)', [raw[0].date, uniqueProductsCodes[i], groupObj[uniqueProductsCodes[i]].dnt])
+                        
                     }
                     resolve(1);
                 } catch (err) {
@@ -187,7 +185,7 @@ class Product {
         )
     }
 
-    putOrderListToDB = () => {
+    putOrderListToDB () {
         return new Promise(
             async (resolve, reject) => {
                 try {
@@ -279,7 +277,7 @@ class Product {
         )
     }
 
-    preSuppliedListWithoutItem = (data) => {
+    preSuppliedListWithoutItem (data) {
         return new Promise (
             async (resolve, reject) => {
                 var startDate = data.startYear + '-' + data.startMonth + '-' + data.startDay;
@@ -369,7 +367,7 @@ class Product {
         )
     }
 
-    preSuppliedList = (data) => {
+    preSuppliedList (data) {
         return new Promise (
             async (resolve, reject) => {
                 var startDate = data.startYear + '-' + data.startMonth + '-' + data.startDay;
