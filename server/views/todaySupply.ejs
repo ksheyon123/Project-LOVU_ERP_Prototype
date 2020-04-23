@@ -180,7 +180,7 @@
         requestItemList = async () => {
             var searchItem = document.getElementById('searchitem').value;
             var responseItem = document.getElementById('responseitem');
-            const response = await fetch ('http://172.30.1.23:3000/requestItemList', {
+            const response = await fetch ('http://localhost:3000/requestItemList', {
                 method: 'POST',
                 headers : {
                     'Content-Type': 'application/json'
@@ -238,7 +238,7 @@
                         array.push({date : date, cellCode : cellCode, cellCnt : cellCnt, cellPrice : cellPrice, cellRt : cellRt, cellDnt : cellDnt, cellPmt : cellPmt, cellSup : cellSup, cellVoid : cellVoid })
                     }
 
-                    const response = await fetch('http://172.30.1.23:3000/putSupplyRequestToDB', {
+                    const response = await fetch('http://localhost:3000/putSupplyRequestToDB', {
                         method: 'POST',
                         headers : {
                         'Content-Type' : 'application/json',
@@ -274,7 +274,7 @@
             }
 
             try {
-                const response  = await fetch ('http://172.30.1.23:3000/requestPreSuppliedList', {
+                const response  = await fetch ('http://localhost:3000/requestPreSuppliedList', {
                     method : 'POST',
                     headers : {
                         'Content-Type': 'application/json'
@@ -340,7 +340,7 @@
         requestInventItemList = async () => {
             var inventItem = document.getElementById('inventitemname').value;
             var responseItem = document.getElementById('resinventitem');
-            const response = await fetch ('http://172.30.1.23:3000/requestItemList', {
+            const response = await fetch ('http://localhost:3000/requestItemList', {
                 method: 'POST',
                 headers : {
                     'Content-Type': 'application/json'
