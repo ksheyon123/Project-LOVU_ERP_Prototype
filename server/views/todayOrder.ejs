@@ -8,10 +8,10 @@
 
     </head>
     <body>
-        <h1>금일 출고 제품을 기입해주세요</h1>
+        <h1>금일 입고 제품을 기입해주세요</h1>
         
         <div>
-                출고 일자 : <div id='date'></div>
+                입고 일자 : <div id='date'></div>
             </p>
             <p>
                 제품명 : <input type='button' id='item' name='item' value='상품 조회'>
@@ -38,7 +38,7 @@
                 구분 : 
                 판매<input type='radio' id='item_dnt1' name='item_dnt' value='판매' checked>
                 본사<input type='radio' id='item_dnt2' name='item_dnt' value='본사'>
-                판매본부<input type='radio' id='item_dnt3' name='item_dnt' value='판매본부'>
+                기타<input type='radio' id='item_dnt3' name='item_dnt' value='기타'>
             </p>
             <p>
                 결제수단 : 
@@ -47,7 +47,7 @@
                 외상<input type='radio' id='item_pmt3' name='item_pmt' value='외상'>
             </p>
             <p>
-                구매자 :
+                공급자 :
                 <input type='text' id='item_sup' name='item_sup' value=''>
             </p>
             <p>
@@ -73,7 +73,7 @@
                     <td>요청자</td>
                     <td>구분</td>
                     <td>결제수단</td>
-                    <td>구매자</td>
+                    <td>공급자</td>
                     <td>비고</td>
                 </tr>
                 <tbody id='tblShow'>
@@ -82,12 +82,12 @@
             </table>
         </div>
         <p>
-            <button type='button' id='requestBtn' name='requestBtn' onclick='putOrderList()'>출고</button>
+            <button type='button' id='requestBtn' name='requestBtn' onclick='putOrderList()'>입고</button>
         </p>
         <hr>
         <!-- From Here For Request pre-exist items which enrolled before-->
         <p>
-            <h2>출고 제품 리스트</h2>
+            <h2>입고 제품 리스트</h2>
         </p>
 
         <h3>제품 명 및 기간 조회</h3>
@@ -109,7 +109,7 @@
             제품 코드 : <div id='preSuppliedItemCode'></div>
             <button type='button' id='inventory'>제품 조회</button>
         </p>
-        <button type='button' onclick='preOrderedList()'>조회</button>
+        <button type='button' onclick='preSuppliedList()'>조회</button>
         <div id='itemsList'></div>
         
 
@@ -165,6 +165,7 @@
     <script src='/javascripts/period.js'></script>
     <script src='/javascripts/adddelete.js'></script>
 
+
     <script>
         var count = 0;
         var date = new Date();
@@ -179,7 +180,7 @@
         requestItemList = async () => {
             var searchItem = document.getElementById('searchitem').value;
             var responseItem = document.getElementById('responseitem');
-            const response = await fetch ('http://172.30.1.23:3000/requestItemList', {
+            const response = await fetch ('http://localhost:3000/requestItemList', {
                 method: 'POST',
                 headers : {
                     'Content-Type': 'application/json'
@@ -188,7 +189,6 @@
             })
             
             var json = await response.json();
-            console.log('json', json[0])
             if (response.ok) {
                 if(json[0] == undefined) {
                     window.alert('조회한 제품이 존재하지 않습니다')
@@ -204,7 +204,6 @@
         }
 
         putRequest = (data) => {
-            console.log(data)
             var item_nm = document.getElementById('item_nm')
             var item_cp = document.getElementById('item_cp')
             var item_code = document.getElementById('item_code')
@@ -221,7 +220,7 @@
                 var tblData = tblContent.childNodes;
                 var array = new Array();
                 if (tblContent.rows.length == 0) {
-                    window.alert('주문을 요청할 상품이 없습니다')
+                    window.alert('출고를 요청할 상품이 없습니다')
                 } else {
                     for (var i = 1; i < tblData.length; i++) {
                         if (tblData[i].cells[1].childNodes[0] == undefined) {
@@ -239,7 +238,7 @@
                         array.push({date : date, cellCode : cellCode, cellCnt : cellCnt, cellPrice : cellPrice, cellRt : cellRt, cellDnt : cellDnt, cellPmt : cellPmt, cellSup : cellSup, cellVoid : cellVoid })
                     }
 
-                    const response = await fetch('http://172.30.1.23:3000/putOrderRequestToDB', {
+                    const response = await fetch('http://localhost:3000/putOrderRequestToDB', {
                         method: 'POST',
                         headers : {
                         'Content-Type' : 'application/json',
@@ -258,8 +257,8 @@
         }
 
     
-        //Pre-Ordered Product List Request
-        preOrderedList = async () => {
+        //Pre-Supplied Product List Request
+        preSuppliedList = async () => {
             var startYear = $('#start_year option:selected').val();
             var startMonth = $('#start_month option:selected').val();
             var startDay = $('#start_day option:selected').val();
@@ -275,7 +274,7 @@
             }
 
             try {
-                const response  = await fetch ('http://172.30.1.23:3000/requestPreOrderedList', {
+                const response  = await fetch ('http://localhost:3000/requestPreSuppliedList', {
                     method : 'POST',
                     headers : {
                         'Content-Type': 'application/json'
@@ -341,7 +340,7 @@
         requestInventItemList = async () => {
             var inventItem = document.getElementById('inventitemname').value;
             var responseItem = document.getElementById('resinventitem');
-            const response = await fetch ('http://172.30.1.23:3000/requestItemList', {
+            const response = await fetch ('http://localhost:3000/requestItemList', {
                 method: 'POST',
                 headers : {
                     'Content-Type': 'application/json'
@@ -366,7 +365,6 @@
         }
 
         putInventory = (data) => {
-            console.log(data)
             var item_nm = document.getElementById('preSuppliedItemName')
             var item_code = document.getElementById('preSuppliedItemCode')
             item_code.innerHTML = data[0];

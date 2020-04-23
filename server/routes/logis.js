@@ -17,7 +17,7 @@ router.post('/putSupplyRequestToDB', async (req, res) => {
     var flags;
     var reObj = new Object();
     //Re-Start
-    var resResult = await logisModel.checkExistence(raw);
+    var resResult = await logisModel.checkExistenceSupply(raw);
     reObj = {
       dataset : [],
       preset : resResult,
@@ -39,7 +39,6 @@ router.post('/putSupplyRequestToDB', async (req, res) => {
     }
     res.send('성공')
   } catch (err) {
-    console.log('aas')
     console.log(err)
   }
 });
@@ -47,9 +46,32 @@ router.post('/putSupplyRequestToDB', async (req, res) => {
 router.post('/putOrderRequestToDB', async (req, res) => {
   try {
     var raw = req.body.data;
-    var afterPutData = await logisModel.putOrderListToDB(raw);
+    var flags;
+    var reObj = new Object();
+    //Re-Start
+    var resResult = await logisModel.checkExistenceOrder(raw);
+    reObj = {
+      dataset : [],
+      preset : resResult,
+    }
+    for (var i = 0; i < raw.length; i++) {
+      if (raw[i].cellDnt == '판매' && resResult[raw[i].cellCode].recall != null) {
+        flags = 1;
+      } else if (raw[i].cellDnt == '본사' && resResult[raw[i].cellCode].holdings != null) {
+        flags = 2;
+      } else if (raw[i].cellDnt == '기타' && resResult[raw[i].cellCode].etc != null) {
+        flags = 3;
+      } else {
+        flags = 4;
+        reObj.dataset.push(raw[i]);
+      }
+    }
+    if (reObj.dataset[0]) {
+      await logisModel.putOrderListToDB(reObj);
+    }
+    res.send('성공')
   } catch (err) {
-
+    console.log(err)
   }
 })
 
