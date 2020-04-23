@@ -17,14 +17,12 @@ router.post('/putSupplyRequestToDB', async (req, res) => {
     var flags;
     var reObj = new Object();
     //Re-Start
-    console.log(raw);
     var resResult = await logisModel.checkExistence(raw);
     reObj = {
       dataset : [],
       preset : resResult,
     }
     for (var i = 0; i < raw.length; i++) {
-      console.log('#', i)
       if (raw[i].cellDnt == '반품' && resResult[raw[i].cellCode].recall != null) {
         flags = 1;
       } else if (raw[i].cellDnt == '본사' && resResult[raw[i].cellCode].holdings != null) {
@@ -39,7 +37,7 @@ router.post('/putSupplyRequestToDB', async (req, res) => {
     if (reObj.dataset[0]) {
       await logisModel.putSupplyListToDB(reObj);
     }
-    
+    res.send('성공')
   } catch (err) {
     console.log('aas')
     console.log(err)

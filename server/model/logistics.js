@@ -40,7 +40,6 @@ class Product {
                     for ( var i = 0; i < raw.length; i++) {
                         var sql = 'SELECT suprecallid, supholdingsid, supetcid FROM supplies WHERE distinctid IN (SELECT distinctid FROM supplyinqueries WHERE date = ? AND itemid = ?)';
                         var resResult = await logisConnection.query(sql, [raw[i].date, raw[i].cellCode]);
-                        console.log('#', resResult[0])
                         for (var j = 0; j < resResult[0].length; j++) {
                             if (resResult[0][j].suprecallid) {
                                 objComponent[raw[i].cellCode].recall = resResult[0][j].suprecallid;
@@ -55,7 +54,6 @@ class Product {
                             } 
                         }
                     }
-                    
                     resolve(objComponent);
                 } catch (err) {
                     reject(err)
@@ -141,28 +139,20 @@ class Product {
                             await logisConnection.query('INSERT INTO supplyinqueries (date, itemid, distinctid) VALUES (? ,? ,?)', [raw[0].date, uniqueProductsCodes[i], groupObj[uniqueProductsCodes[i]].dnt])
 
                         } else {
-                            console.log('a')
                             // Bring inserted data from supplies database based on Date, ItemCode
                             // If there is pre-inserted data, then go to "if (preEx[0][0])" Process
                             // If not then go to "else" Process 
                             var preEx = await logisConnection.query('SELECT suprecallid, supholdingsid, supetcid FROM supplies WHERE distinctid IN (SELECT distinctid FROM supplyinqueries WHERE date = ? AND itemid = ?)', [raw[0].date, uniqueProductsCodes[i]])
 
                             if (preEx[0][0]) {
-                                console.log('b')
-
                                 if(preEx[0][0].suprecallid == null && groupObj[uniqueProductsCodes[i]].recall != null) {
-                                    console.log('1')
                                     await logisConnection.query('UPDATE supplies SET suprecallid =? WHERE distinctid IN (SELECT distinctid FROM supplyinqueries WHERE date = ? AND itemid = ?)', [groupObj[uniqueProductsCodes[i]].recall, raw[0].date, uniqueProductsCodes[i]]);
                                 } 
                                 
                                 if (preEx[0][0].supholdingsid == null && groupObj[uniqueProductsCodes[i]].holdings != null) {
-                                    console.log('2')
-
                                     await logisConnection.query('UPDATE supplies SET supholdingsid = ? WHERE distinctid IN (SELECT distinctid FROM supplyinqueries WHERE date = ? AND itemid = ?)', [groupObj[uniqueProductsCodes[i]].holdings, raw[0].date, uniqueProductsCodes[i]]);
                                 } 
                                 if (preEx[0][0].supetcid == null && groupObj[uniqueProductsCodes[i]].etc != null) {
-                                    console.log('3')
-
                                     await logisConnection.query('UPDATE supplies SET supetcid = ? WHERE distinctid IN (SELECT distinctid FROM supplyinqueries WHERE date = ? AND itemid = ?)', [groupObj[uniqueProductsCodes[i]].etc, raw[0].date, uniqueProductsCodes[i]]);
                                 }
                             } else {
