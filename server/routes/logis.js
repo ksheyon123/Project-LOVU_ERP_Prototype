@@ -11,15 +11,35 @@ router.get('/requestLogis', (req, res) => {
   res.render('requestLogis')
 });
 
-router.post('/putRequestToDB', async (req, res) => {
+router.post('/putSupplyRequestToDB', async (req, res) => {
   try {
     var raw = req.body.data;
-    // Need to Classify Raw Data. 
-    // For example, Product Code A001 [cellDnt 1, Qty], [cellDnt 2, Qty], [cellDnt 3, Qty]
-    // Product Code A016 [cellDnt 1, Qty], [cellDnt 2, Qty], [cellDnt 3, Qty]
-    var afterPutData = await logisModel.putSupplyListToDB(raw);
-    console.log('afterPutData', afterPutData)
-    res.send({response : afterPutData});
+    var flags;
+    var reObj = new Object();
+
+    
+    //Re-Start
+    console.log(raw);
+    var resResult = await logisModel.checkExistence(raw);
+    reObj = {
+      dataset : [],
+      preset : resResult,
+    }
+    for (var i = 0; i < raw.length; i++) {
+      console.log('#', i)
+      if (raw[i].cellDnt == '반품' && resResult[raw[i].cellCode].recall != null) {
+        flags = 1;
+      } else if (raw[i].cellDnt == '본사' && resResult[raw[i].cellCode].holdings != null) {
+        flags = 2;
+      } else if (raw[i].cellDnt == '기타' && resResult[raw[i].cellCode].etc != null) {
+        flags = 3;
+      } else {
+        flags = 4;
+        reObj.dataset.push(raw[i]);
+      }
+      console.log(reObj);
+    }
+    await logisModel.putSupplyListToDB(reObj);
   } catch (err) {
     console.log('aas')
     console.log(err)
@@ -42,6 +62,7 @@ router.get('/todaySupply', (req, res) => {
 //todaySupply Page, Search Product From Databaseß Router
 router.post('/requestItemList', async (req, res) => {
   try {
+    console.log(req.body)
     var array = new Array();
     var response = new Array();
     var productList = await logisModel.requestProductList();
@@ -68,12 +89,24 @@ router.get('/todayOrder', (req, res) => {
 router.post('/requestPreSuppliedList', async (req, res) => {
   try { 
     var raw = req.body;
-    console.log(raw)
-    var responseResult = await logisModel.preSuppliedList(raw);
+    if (raw.itemCode == null) {
+      var responseResult = await logisModel.preSuppliedListWithoutItem(raw);
+    } else {
+      var responseResult = await logisModel.preSuppliedList(raw);
+    }
     console.log(responseResult)
+    res.send(responseResult)
   } catch (err) {
     console.log(err)
   }
 });
+
+router.get('/overlack', (req, res) => {
+  res.render('overlack');
+});
+
+router.get('/inventoryManagement', (req, res) => {
+  res.render('inventoryManagement')
+})
 
 module.exports = router;
