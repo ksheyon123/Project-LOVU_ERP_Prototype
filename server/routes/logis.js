@@ -106,6 +106,22 @@ router.get('/todayOrder', (req, res) => {
   res.render('todayOrder')
 });
 
+router.post('/requestPreOrderedList', async (req, res) => {
+  try {
+    var raw = req.body;
+    console.log('order raw', raw)
+    if (raw.itemCode == null) {
+      var responseResult = await logisModel.preOrderedListWithoutItem(raw);
+    } else {
+      var responseResult = await logisModel.preOrderedList(raw);
+    }
+    console.log(responseResult)
+    res.send(responseResult)
+  } catch (err) {
+    console.log(err)
+  }
+})
+
 router.post('/requestPreSuppliedList', async (req, res) => {
   try {
     var raw = req.body;

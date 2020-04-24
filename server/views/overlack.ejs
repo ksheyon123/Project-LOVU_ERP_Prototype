@@ -193,6 +193,11 @@
         item_code.innerHTML = data[0];
         item_nm.innerHTML = data[1];
         item_cp.innerHTML = data[2];
+
+        var cell = document.getElementById('responseitem'); 
+        while ( cell.hasChildNodes() ) { 
+            cell.removeChild( cell.firstChild ); 
+        }
     }
 
         //Put Supply List To Database

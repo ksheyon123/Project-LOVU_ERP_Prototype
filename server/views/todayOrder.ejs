@@ -82,12 +82,12 @@
         </table>
     </div>
     <p>
-        <button type='button' id='requestBtn' name='requestBtn' onclick='putOrderList()'>입고</button>
+        <button type='button' id='requestBtn' name='requestBtn' onclick='putOrderList()'>출고</button>
     </p>
     <hr>
     <!-- From Here For Request pre-exist items which enrolled before-->
     <p>
-        <h2>입고 제품 리스트</h2>
+        <h2>출고 제품 리스트</h2>
     </p>
 
     <h3>제품 명 및 기간 조회</h3>
@@ -109,7 +109,7 @@
         제품 코드 : <div id='preSuppliedItemCode'></div>
         <button type='button' id='inventory'>제품 조회</button>
     </p>
-    <button type='button' onclick='preSuppliedList()'>조회</button>
+    <button type='button' onclick='preOrderedList()'>조회</button>
     <div id='itemsList'></div>
 
 
@@ -121,8 +121,8 @@
                 <td>제품코드</td>
                 <td>제품명</td>
                 <td>용량</td>
-                <td>반품</td>
-                <td>구매</td>
+                <td>판매</td>
+                <td>본사</td>
                 <td>기타</td>
             </tr>
             <tbody id='resTblShow'>
@@ -211,7 +211,10 @@
         item_nm.innerHTML = data[1];
         item_cp.innerHTML = data[2];
 
-        document.getElementById('responseitem').remove();
+        var cell = document.getElementById('responseitem'); 
+        while ( cell.hasChildNodes() ) { 
+            cell.removeChild( cell.firstChild ); 
+        }
     }
 
     //Put Supply List To Database
@@ -260,7 +263,7 @@
 
 
     //Pre-Supplied Product List Request
-    preSuppliedList = async () => {
+    preOrderedList = async () => {
         var startYear = $('#start_year option:selected').val();
         var startMonth = $('#start_month option:selected').val();
         var startDay = $('#start_day option:selected').val();
@@ -276,7 +279,7 @@
         }
 
         try {
-            const response = await fetch('http://localhost:3000/requestPreSuppliedList', {
+            const response = await fetch('http://localhost:3000/requestPreOrderedList', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
@@ -292,7 +295,7 @@
                     var row_nm = json[i].items.itemName;
                     var row_code = json[i].items.itemCode;
                     var row_cp = json[i].items.itemVolume;
-                    var row_rcnt = json[i].items.objset.recall.qty;
+                    var row_rcnt = json[i].items.objset.sell.qty;
                     var row_hcnt = json[i].items.objset.holdings.qty;
                     var row_ecnt = json[i].items.objset.etc.qty;
 

@@ -242,13 +242,13 @@ class Product {
 
                             if (uniqueProductsCodes[x] == raw[i].cellCode) {
                                 // Get Recall Data From Recall Table 
-                                if (raw[i].cellDnt == '구매') {
+                                if (raw[i].cellDnt == '판매') {
                                     var sellResponse = await logisConnection.query('SELECT * FROM ordersells')
                                     if (sellResponse[0][0] == undefined) {
-                                        var sellid = 'R1';
+                                        var sellid = 'S1';
                                     } else {
                                         var num = parseInt(sellResponse[0].length) + 1;
-                                        var sellid = 'R' + num;
+                                        var sellid = 'S' + num;
                                     }
 
                                     await logisConnection.query('INSERT INTO ordersells (ordsellid, qty) VALUES (?, ?)', [sellid, raw[i].cellCnt]);
@@ -499,6 +499,182 @@ class Product {
                             var suppliesResponse3 = await logisConnection.query('SELECT supetcid, qty FROM supplyetc WHERE supetcid=?', [prerecallsupplies[0][0].supetcid]);
                             objResponse.items.objset.etc.id = suppliesResponse3[0][0].supetcid;
                             objResponse.items.objset.etc.qty = suppliesResponse3[0][0].qty;
+                        }
+                        resArray[i] = JSON.stringify(objResponse);
+                        getArray[i] = JSON.parse(resArray[i]);
+                    }
+                    resolve(getArray)
+                } catch (err) {
+                    reject(err)
+                }
+            }
+        )
+    }
+    preOrderedListWithoutItem(data) {
+        return new Promise(
+            async (resolve, reject) => {
+                var startDate = data.startYear + '-' + data.startMonth + '-' + data.startDay;
+                var endDate = data.endYear + '-' + data.endMonth + '-' + data.endDay;
+                var resArray = new Array();
+                var getArray = new Array();
+                var objResponse = {
+                    date: null,
+                    items: {
+                        itemCode: null,
+                        itemName: null,
+                        itemVolume: null,
+                        objset: {
+                            sell: {
+                                id: null,
+                                qty: null
+                            },
+                            holdings: {
+                                id: null,
+                                qty: null
+                            },
+                            etc: {
+                                id: null,
+                                qty: null
+                            }
+                        }
+                    }
+                }
+                try {
+                    var sql = 'SELECT DATE_FORMAT(date, "%Y-%m-%e") AS date, itemid, distinctid FROM orderinqueries WHERE date BETWEEN ? AND ?';
+                    var response = await logisConnection.query(sql, [startDate, endDate]);
+                    var resData = response[0];
+
+                    for (var i = 0; i < resData.length; i++) {
+                        objResponse.date = resData[i].date;
+
+                        var itemsResponse = await logisConnection.query('SELECT name, volume, code FROM items WHERE code = ?', [resData[i].itemid]);
+                        objResponse.items.itemCode = itemsResponse[0][0].code;
+                        objResponse.items.itemName = itemsResponse[0][0].name;
+                        objResponse.items.itemVolume = itemsResponse[0][0].volume;
+
+                        // If there is no data related to Recalls at Supplyrecall database
+                        var presellorders = await logisConnection.query('SELECT IFNULL(ordsellid, "empty") AS ordsellid FROM orders WHERE distinctid=?', [resData[i].distinctid]);
+                        if (presellorders[0][0].ordsellid == 'empty') {
+                            objResponse.items.objset.sell.id = null;
+                            objResponse.items.objset.sell.qty = null;
+
+                        } else {
+                            var ordersResponse1 = await logisConnection.query('SELECT ordsellid, qty FROM ordersells WHERE ordsellid=?', [presellorders[0][0].ordsellid]);
+                            objResponse.items.objset.sell.id = ordersResponse1[0][0].ordsellid;
+                            objResponse.items.objset.sell.qty = ordersResponse1[0][0].qty;
+                        }
+
+                        // If there is no data related to Holdings at Supplyholdings database
+                        var preholdingsorders = await logisConnection.query('SELECT IFNULL(ordholdingsid, "empty") AS ordholdingsid FROM orders WHERE distinctid=?', [resData[i].distinctid]);
+                        if (preholdingsorders[0][0].ordholdingsid == 'empty') {
+                            objResponse.items.objset.holdings.id = null;
+                            objResponse.items.objset.holdings.qty = null;
+
+                        } else {
+                            var ordersResponse2 = await logisConnection.query('SELECT ordholdingsid, qty FROM orderholdings WHERE ordholdingsid=?', [preholdingsorders[0][0].ordholdingsid]);
+                            objResponse.items.objset.holdings.id = ordersResponse2[0][0].ordholdingsid;
+                            objResponse.items.objset.holdings.qty = ordersResponse2[0][0].qty;
+                        }
+
+                        // If there is no data related to ETC at Supplyetc database
+                        var preetcorders = await logisConnection.query('SELECT IFNULL(ordetcid, "empty") AS ordetcid FROM orders WHERE distinctid=?', [resData[i].distinctid]);
+                        if (preetcorders[0][0].ordetcid == 'empty') {
+                            objResponse.items.objset.etc.id = null;
+                            objResponse.items.objset.etc.qty = null;
+
+                        } else {
+                            var ordersResponse3 = await logisConnection.query('SELECT ordetcid, qty FROM orderetc WHERE ordetcid=?', [preetcorders[0][0].ordetcid]);
+                            objResponse.items.objset.etc.id = ordersResponse3[0][0].ordetcid;
+                            objResponse.items.objset.etc.qty = ordersResponse3[0][0].qty;
+                        }
+                        resArray[i] = JSON.stringify(objResponse);
+                        getArray[i] = JSON.parse(resArray[i]);
+                    }
+                    resolve(getArray)
+                } catch (err) {
+                    reject(err)
+                    console.log(err)
+                }
+            }
+        )
+    }
+
+    preOrderedList(data) {
+        return new Promise(
+            async (resolve, reject) => {
+                var startDate = data.startYear + '-' + data.startMonth + '-' + data.startDay;
+                var endDate = data.endYear + '-' + data.endMonth + '-' + data.endDay;
+                var resArray = new Array();
+                var getArray = new Array();
+                var objResponse = {
+                    date: null,
+                    items: {
+                        itemCode: null,
+                        itemName: null,
+                        itemVolume: null,
+                        objset: {
+                            sell: {
+                                id: null,
+                                qty: null
+                            },
+                            holdings: {
+                                id: null,
+                                qty: null
+                            },
+                            etc: {
+                                id: null,
+                                qty: null
+                            }
+                        }
+                    }
+                }
+
+                try {
+                    var sql = 'SELECT DATE_FORMAT(date, "%Y-%m-%e") AS date, itemid, distinctid FROM orderinqueries WHERE (date BETWEEN ? AND ?) AND itemid = ?';
+                    var response = await logisConnection.query(sql, [startDate, endDate, data.itemCode]);
+                    var resData = response[0];
+                    for (var i = 0; i < resData.length; i++) {
+                        objResponse.date = resData[i].date;
+
+                        var itemsResponse = await logisConnection.query('SELECT name, volume, code FROM items WHERE code = ?', [resData[i].itemid]);
+                        objResponse.items.itemCode = itemsResponse[0][0].code;
+                        objResponse.items.itemName = itemsResponse[0][0].name;
+                        objResponse.items.itemVolume = itemsResponse[0][0].volume;
+
+                        // If there is no data related to Recall at Supplyrecalls database
+                        var presellorders = await logisConnection.query('SELECT IFNULL(ordsellid, "empty") AS ordsellid FROM orders WHERE distinctid=?', [resData[i].distinctid]);
+                        if (presellorders[0][0].ordsellid == 'empty') {
+                            objResponse.items.objset.sell.id = null;
+                            objResponse.items.objset.sell.qty = null;
+
+                        } else {
+                            var ordersResponse1 = await logisConnection.query('SELECT ordsellid, qty FROM ordersells WHERE ordsellid=?', [presellorders[0][0].ordsellid]);
+                            objResponse.items.objset.sell.id = ordersResponse1[0][0].ordsellid;
+                            objResponse.items.objset.sell.qty = ordersResponse1[0][0].qty;
+                        }
+
+                        // If there is no data related to Holdings at Supplyholdings database
+                        var preholdingsorders = await logisConnection.query('SELECT IFNULL(ordholdingsid, "empty") AS ordholdingsid FROM orders WHERE distinctid=?', [resData[i].distinctid]);
+                        if (preholdingsorders[0][0].ordholdingsid == 'empty') {
+                            objResponse.items.objset.holdings.id = null;
+                            objResponse.items.objset.holdings.qty = null;
+
+                        } else {
+                            var ordersResponse2 = await logisConnection.query('SELECT ordholdingsid, qty FROM orderholdings WHERE ordholdingsid=?', [preholdingsorders[0][0].ordholdingsid]);
+                            objResponse.items.objset.holdings.id = ordersResponse2[0][0].ordholdingsid;
+                            objResponse.items.objset.holdings.qty = ordersResponse2[0][0].qty;
+                        }
+
+                        // If there is no data related to ETC at Supplyetc database
+                        var preetcorders = await logisConnection.query('SELECT IFNULL(ordetcid, "empty") AS ordetcid FROM orders WHERE distinctid=?', [resData[i].distinctid]);
+                        if (preetcorders[0][0].ordetcid == 'empty') {
+                            objResponse.items.objset.etc.id = null;
+                            objResponse.items.objset.etc.qty = null;
+
+                        } else {
+                            var ordersResponse3 = await logisConnection.query('SELECT ordetcid, qty FROM orderetc WHERE ordetcid=?', [preetcorders[0][0].ordetcid]);
+                            objResponse.items.objset.etc.id = ordersResponse3[0][0].ordetcid;
+                            objResponse.items.objset.etc.qty = ordersResponse3[0][0].qty;
                         }
                         resArray[i] = JSON.stringify(objResponse);
                         getArray[i] = JSON.parse(resArray[i]);

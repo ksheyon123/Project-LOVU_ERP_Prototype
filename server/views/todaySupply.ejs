@@ -211,7 +211,10 @@
         item_nm.innerHTML = data[1];
         item_cp.innerHTML = data[2];
 
-        document.getElementById('responseitem').remove();
+        var cell = document.getElementById('responseitem'); 
+        while ( cell.hasChildNodes() ) { 
+            cell.removeChild( cell.firstChild ); 
+        }
     }
 
     //Put Supply List To Database
