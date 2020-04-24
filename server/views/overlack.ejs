@@ -214,13 +214,10 @@
                     if (tblData[i].cells[1].childNodes[0] == undefined) {
                         console.log(i)
                     }
-
                     var cellCode = tblData[i].cells[1].childNodes[0].textContent;
                     var cellCnt = tblData[i].cells[4].childNodes[0].textContent;
                     var cellWt = tblData[i].cells[5].childNodes[0].textContent;
                     var cellVoid = tblData[i].cells[6].childNodes[0].textContent;
-                    
-
                     array.push({ date: date, cellCode: cellCode, cellCnt: cellCnt, cellWt: cellWt, cellVoid: cellVoid })
                 }
 

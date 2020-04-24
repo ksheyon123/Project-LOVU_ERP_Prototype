@@ -144,9 +144,7 @@ router.get('/overlack', (req, res) => {
 router.post('/putOverlackRequestToDB', async (req, res) => {
   try{
     var raw = req.body.data;
-    console.log(raw)
     var resResult = await logisModel.checkExistenceOverlack(raw);
-    console.log(resResult)
     await logisModel.putOverlackListToDB(resResult);
     res.send('성공')
   } catch (err) {
