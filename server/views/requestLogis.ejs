@@ -1,241 +1,255 @@
 <!DOCTYPE html>
 <html>
-    <head>
-        <script
-        src="https://code.jquery.com/jquery-3.4.1.js"
-        integrity="sha256-WpOohJOqMqqyKL9FccASB9O0KwACQJpFTUBLTYOVvVU="
-        crossorigin="anonymous"></script>
-    </head>
-    <body>
-        <h1>Dr.MEI Logistics</h1>
-        <h2>닥터 메이 제품 출고 요청 페이지 입니다</h2>
-            <br>
-        요청자 : <input type='text' name='incharge' id='incharge'>
-        전화번호 : <input type='text' name='cphone' id='cphone'>
-        출고일자 : <input type='text' name='deliverydate' id='deliverydate'>
-        출고방법 : 직접수령<input type='radio' name='deliveryway' value='직접수령'> 택배<input type='radio' name='deliveryway' value='택배'>
-        <br>
-        <br>
-        실구매자 : <input type='text' name='orderer' id='orderer'>
-        전화번호 : <input type='text' name='ophone' id='ophone'>
-        업체명 : <input type='text' name='companyname' id='companyname'>
-        주소 : <input type='text' name='address' id='address'>
-        <p>
-            제품 코드 : <div id='item_code'></div>
-            제품명 : <div id='item_nm'></div>
-            제품 용량 : <div id='item_cp'></div>
-            <input type='button' id='item' name='item' value='상품 조회'>
-        </p>
-        <p>
-            <button type='button' id='addBtn' name='addBtn' onclick='addOrderList()'>상품 추가</button>
-            <button type='button' id='deleteBtn' name='deleteBtn' onclick='deleteOrderList()'>상품 제거</button>
-        </p>
-        <div>
-            <table width='600px'>
-                <tr>
-                    <td>No.</td>
-                    <td>제품명</td>
-                    <td>용량</td>
-                    <td>수량</td>
-                    <td>요청자</td>
-                    <td>요청자 전화번호</td>
-                    <td>출고일자</td>
-                    <td>실구매자</td>
-                    <td>구매자 전화번호</td>
-                    <td>업체명</td>
-                    <td>주소</td>
-                </tr>
-                <tbody id='tblShow'>
 
-                </tbody>
-            </table>
-        </div>
-        <p>
-            <button type='button' id='requestBtn' name='requestBtn' onclick='putOrderToDB()'>발주 요청</button>
-            </p>
-    </body>
+<head>
+    <script src="https://code.jquery.com/jquery-3.4.1.js"
+        integrity="sha256-WpOohJOqMqqyKL9FccASB9O0KwACQJpFTUBLTYOVvVU=" crossorigin="anonymous"></script>
+</head>
 
-    <!-- Modal For Searching Item -->
-    <div id="searchBox" class="modal">
-        <!-- Modal content -->
-        <div class="searchBox-content">
-            <span class="close">&times;</span>
-            <p>
-                <input type='text' id='searchitem' name='searchitem'>
-                <button id='requestItemListBtn' onclick='requestItemList()'>조회</button>
+<body>
+    <h1>Dr.MEI Logistics</h1>
+    <h2>닥터 메이 제품 출고 요청 페이지 입니다</h2>
+    <br>
+    요청자 : <input type='text' name='incharge' id='incharge'>
+    전화번호 : <input type='text' name='cphone' id='cphone'>
+    출고일자 : <input type='text' name='deliverydate' id='deliverydate'>
+    출고방법 : 직접수령<input type='radio' name='deliveryway' value='직접수령'> 택배<input type='radio' name='deliveryway' value='택배'>
+    <br>
+    <br>
+    실구매자 : <input type='text' name='orderer' id='orderer'>
+    전화번호 : <input type='text' name='ophone' id='ophone'>
+    업체명 : <input type='text' name='companyname' id='companyname'>
+    주소 : <input type='text' name='address' id='address'>
+    <p>
+        제품 코드 : <div id='item_code'></div>
+        제품명 : <div id='item_nm'></div>
+        제품 용량 : <div id='item_cp'></div>
+        <input type='button' id='item' name='item' value='상품 조회'>
+    </p>
+    <p>
+        <button type='button' id='addBtn' name='addBtn' onclick='addOrderList()'>상품 추가</button>
+        <button type='button' id='deleteBtn' name='deleteBtn' onclick='deleteOrderList()'>상품 제거</button>
+    </p>
+    <div>
+        <table width='600px'>
+            <tr>
+                <td>No.</td>
+                <td>제품명</td>
+                <td>용량</td>
+                <td>수량</td>
+                <td>요청자</td>
+                <td>요청자 전화번호</td>
+                <td>출고일자</td>
+                <td>실구매자</td>
+                <td>구매자 전화번호</td>
+                <td>업체명</td>
+                <td>주소</td>
+            </tr>
+            <tbody id='tblShow'>
 
-                <div id='responseitem'></div>
-            </p>
-        </div>
+            </tbody>
+        </table>
     </div>
-    <script src='/javascripts/searchboxModal.js'></script>
+    <p>
+        <button type='button' id='requestBtn' name='requestBtn' onclick='putOrderToDB()'>발주 요청</button>
+    </p>
+</body>
 
-    <script>
-        var count = 0;
-        
-        requestItemList = async () => {
-            var searchItem = document.getElementById('searchitem').value;
-            var responseItem = document.getElementById('responseitem');
-            const response = await fetch ('http://172.30.1.23:3000/requestItemList', {
-                method: 'POST',
-                headers : {
-                    'Content-Type': 'application/json'
-                },
-                body : JSON.stringify({ searchItem : searchItem })
-            })
-            
-            var json = await response.json();
-            if (response.ok) {
-                if(json[0] == undefined) {
-                    window.alert('조회한 제품이 존재하지 않습니다')
-                } else {   
-                    for (var i = 0; i < json.length; i++) {
-                        var newP = document.createElement('p');
-                        newP.innerHTML = "<button type='button' onclick='putRequest(" +`${JSON.stringify(json[i])}` + ")'>" + "선택" + "</button>" + json[i][1];
-                        var data = newP;
-                        responseItem.append(data);
-                    }
+<!-- Modal For Searching Item -->
+<div id="searchBox" class="modal">
+    <!-- Modal content -->
+    <div class="searchBox-content">
+        <span class="close">&times;</span>
+        <p>
+            <input type='text' id='searchitem' name='searchitem'>
+            <button id='requestItemListBtn' onclick='requestItemList()'>조회</button>
+
+            <div id='responseitem'></div>
+        </p>
+    </div>
+</div>
+<script src='/javascripts/searchboxModal.js'></script>
+
+<script>
+    var count = 0;
+
+    requestItemList = async () => {
+        var searchItem = document.getElementById('searchitem').value;
+        var responseItem = document.getElementById('responseitem');
+        const response = await fetch('http://172.30.1.23:3000/requestItemList', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ searchItem: searchItem })
+        })
+
+        var json = await response.json();
+        if (response.ok) {
+            if (json[0] == undefined) {
+                window.alert('조회한 제품이 존재하지 않습니다')
+            } else {
+                for (var i = 0; i < json.length; i++) {
+                    var newP = document.createElement('p');
+                    newP.innerHTML = "<button type='button' onclick='putRequest(" + `${JSON.stringify(json[i])}` + ")'>" + "선택" + "</button>" + json[i][1];
+                    var data = newP;
+                    responseItem.append(data);
                 }
             }
         }
+    }
 
-        putRequest = (data) => {
-            var item_nm = document.getElementById('item_nm')
-            var item_cp = document.getElementById('item_cp')
-            var item_code = document.getElementById('item_code')
-            item_code.innerHTML = data[0];
-            item_nm.innerHTML = data[1];
-            item_cp.innerHTML = data[2];
-        }
+    putRequest = (data) => {
+        var item_nm = document.getElementById('item_nm')
+        var item_cp = document.getElementById('item_cp')
+        var item_code = document.getElementById('item_code')
+        item_code.innerHTML = data[0];
+        item_nm.innerHTML = data[1];
+        item_cp.innerHTML = data[2];
+    }
 
-        addOrderList = () => {
-            count++;
-            var objRow;
-            objRow = document.all('tblShow').insertRow();
+    addOrderList = () => {
+        count++;
+        var objRow;
+        objRow = document.all('tblShow').insertRow();
 
-            //No.
-            var objCell_Num = objRow.insertCell();
-            objCell_Num.innerHTML = count;
+        //No.
+        var objCell_Num = objRow.insertCell();
+        objCell_Num.innerHTML = count;
 
-            //Product Name
-            var objCell_Nm = objRow.insertCell();
-            objCell_Nm.innerHTML = "<input type='text' id='row_nm' name='row_nm' value=''/>";
+        //Product Name
+        var objCell_Nm = objRow.insertCell();
+        objCell_Nm.innerHTML = "<input type='text' id='row_nm' name='row_nm' value=''/>";
 
-            //Product Capacity(Volume)
-            var objCell_Cp = objRow.insertCell();
-            objCell_Cp.innerHTML = "<input type='text' id='row_cp' name='row_cp' value=''/>";
+        //Product Capacity(Volume)
+        var objCell_Cp = objRow.insertCell();
+        objCell_Cp.innerHTML = "<input type='text' id='row_cp' name='row_cp' value=''/>";
 
-            //Ordered Product Count
-            var objCell_Cnt = objRow.insertCell();
-            objCell_Cnt.innerHTML = "<input type='text' id='row_cnt' name='row_cnt' value=''/>";
+        //Ordered Product Count
+        var objCell_Cnt = objRow.insertCell();
+        objCell_Cnt.innerHTML = "<input type='text' id='row_cnt' name='row_cnt' value=''/>";
 
-            //Price
-            var objCell_Price= objRow.insertCell();
-            objCell_Price.innerHTML = "<input type='text' id='row_price' name='row_price' value=''/>";
+        //Price
+        var objCell_Price = objRow.insertCell();
+        objCell_Price.innerHTML = "<input type='text' id='row_price' name='row_price' value=''/>";
 
-            //Note
-            var objCell_Void = objRow.insertCell();
-            objCell_Void.innerHTML = "<input type='text' id='row_void' name='row_void' value=''/>";
-        }
+        //Note
+        var objCell_Void = objRow.insertCell();
+        objCell_Void.innerHTML = "<input type='text' id='row_void' name='row_void' value=''/>";
+    }
 
-        putOrderToDB = async () => {
-            try {
-                var tblContent = document.getElementById('tblShow');
-                var tblData = tblContent.childNodes;
-                var array = new Array();
-                
-                if (tblContent.rows.length == 0) {
-                    window.alert('주문을 요청할 상품을 기록해주세요')
-                } else {
-                    for (var i = 1; i < tblData.length; i++) {
-                        var cellNm = tblData[i].cells[1].getElementsByTagName('input')[0].value;
-                        var cellCp = tblData[i].cells[2].getElementsByTagName('input')[0].value;
-                        var cellCnt = tblData[i].cells[3].getElementsByTagName('input')[0].value;
-                        var cellPrice = tblData[i].cells[4].getElementsByTagName('input')[0].value;
-                        var cellVoid = tblData[i].cells[5].getElementsByTagName('input')[0].value;
-                        array.push({cellNm : cellNm, cellCp : cellCp, cellCnt : cellCnt, cellPrice : cellPrice, cellVoid : cellVoid})
-                    }
-
-                    const response = await fetch('http://localhost:3000/requestItemList', {
-                        method: 'POST',
-                        headers : {
-                        'Content-Type' : 'application/json',
-                        },
-                        body : JSON.stringify({data : array})
-                    })
-                    
-                    if (response.ok) {
-                        window.alert('주문이 요청되었습니다')
-                        location.reload();
-                    }
-                }
-            } catch (err) {
-                window.alert('Err!!')
-            }
-        }
-
-        deleteOrderList = () => {
-            if (count < 1) {
-                count = 1;
-            }
-            count--;
+    putOrderToDB = async () => {
+        try {
             var tblContent = document.getElementById('tblShow');
-            //If There is no Data at all, Do Nothing.
-            if (tblContent.rows.length < 1) return;
+            var tblData = tblContent.childNodes;
+            var array = new Array();
 
-            //Delete From Last Table
-            tblContent.deleteRow(tblContent.rows.length-1);
-        }
-    </script>    
-    <style>
-        .dropdown-content {
-            display: none;
-            position: absolute;
-            background-color: #f6f6f6;
-            min-width: 230px;
-            overflow: auto;
-            border: 1px solid #ddd;
-            z-index: 1;
-        }
-        .show {
-            display: block;
-        }
-        .modal, .inventory_modal {
-            display: none; /* Hidden by default */
-            position: fixed; /* Stay in place */
-            z-index: 1; /* Sit on top */
-            padding-top: 100px; /* Location of the box */
-            left: 0;
-            top: 0;
-            width: 100%; /* Full width */
-            height: 100%; /* Full height */
-            overflow: auto; /* Enable scroll if needed */
-            background-color: rgb(0,0,0); /* Fallback color */
-            background-color: rgba(0,0,0,0.4); /* Black w/ opacity */
-        }
+            if (tblContent.rows.length == 0) {
+                window.alert('주문을 요청할 상품을 기록해주세요')
+            } else {
+                for (var i = 1; i < tblData.length; i++) {
+                    var cellNm = tblData[i].cells[1].getElementsByTagName('input')[0].value;
+                    var cellCp = tblData[i].cells[2].getElementsByTagName('input')[0].value;
+                    var cellCnt = tblData[i].cells[3].getElementsByTagName('input')[0].value;
+                    var cellPrice = tblData[i].cells[4].getElementsByTagName('input')[0].value;
+                    var cellVoid = tblData[i].cells[5].getElementsByTagName('input')[0].value;
+                    array.push({ cellNm: cellNm, cellCp: cellCp, cellCnt: cellCnt, cellPrice: cellPrice, cellVoid: cellVoid })
+                }
 
-        /* Modal Content */
-        .searchBox-content, .inventoryBox-content {
-            background-color: #fefefe;
-            margin: auto;
-            padding: 20px;
-            border: 1px solid #888;
-            width: 80%;
-        }
+                const response = await fetch('http://localhost:3000/requestItemList', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ data: array })
+                })
 
-        /* The Close Button */
-        .close {
-            color: #aaaaaa;
-            float: right;
-            font-size: 28px;
-            font-weight: bold;
+                if (response.ok) {
+                    window.alert('주문이 요청되었습니다')
+                    location.reload();
+                }
+            }
+        } catch (err) {
+            window.alert('Err!!')
         }
+    }
 
-        .close:hover,
-        .close:focus {
-            color: #000;
-            text-decoration: none;
-            cursor: pointer;
+    deleteOrderList = () => {
+        if (count < 1) {
+            count = 1;
         }
-    </style>    
+        count--;
+        var tblContent = document.getElementById('tblShow');
+        //If There is no Data at all, Do Nothing.
+        if (tblContent.rows.length < 1) return;
+
+        //Delete From Last Table
+        tblContent.deleteRow(tblContent.rows.length - 1);
+    }
+</script>
+<style>
+    .dropdown-content {
+        display: none;
+        position: absolute;
+        background-color: #f6f6f6;
+        min-width: 230px;
+        overflow: auto;
+        border: 1px solid #ddd;
+        z-index: 1;
+    }
+
+    .show {
+        display: block;
+    }
+
+    .modal,
+    .inventory_modal {
+        display: none;
+        /* Hidden by default */
+        position: fixed;
+        /* Stay in place */
+        z-index: 1;
+        /* Sit on top */
+        padding-top: 100px;
+        /* Location of the box */
+        left: 0;
+        top: 0;
+        width: 100%;
+        /* Full width */
+        height: 100%;
+        /* Full height */
+        overflow: auto;
+        /* Enable scroll if needed */
+        background-color: rgb(0, 0, 0);
+        /* Fallback color */
+        background-color: rgba(0, 0, 0, 0.4);
+        /* Black w/ opacity */
+    }
+
+    /* Modal Content */
+    .searchBox-content,
+    .inventoryBox-content {
+        background-color: #fefefe;
+        margin: auto;
+        padding: 20px;
+        border: 1px solid #888;
+        width: 80%;
+    }
+
+    /* The Close Button */
+    .close {
+        color: #aaaaaa;
+        float: right;
+        font-size: 28px;
+        font-weight: bold;
+    }
+
+    .close:hover,
+    .close:focus {
+        color: #000;
+        text-decoration: none;
+        cursor: pointer;
+    }
+</style>
+
 </html>

@@ -16,8 +16,8 @@ class Product {
         )
     }
 
-    checkExistenceSupply (raw) {
-        return new Promise (
+    checkExistenceSupply(raw) {
+        return new Promise(
             async (resolve, reject) => {
                 var productCodes = new Array();
                 var resArray = new Array();
@@ -31,27 +31,27 @@ class Product {
 
                 uniqueProductsCodes.map((data) => {
                     objComponent[data] = {
-                        recall : null,
-                        holdings : null,
-                        etc : null,
+                        recall: null,
+                        holdings: null,
+                        etc: null,
                     }
                 })
                 try {
-                    for ( var i = 0; i < raw.length; i++) {
+                    for (var i = 0; i < raw.length; i++) {
                         var sql = 'SELECT suprecallid, supholdingsid, supetcid FROM supplies WHERE distinctid IN (SELECT distinctid FROM supplyinqueries WHERE date = ? AND itemid = ?)';
                         var resResult = await logisConnection.query(sql, [raw[i].date, raw[i].cellCode]);
                         for (var j = 0; j < resResult[0].length; j++) {
                             if (resResult[0][j].suprecallid) {
                                 objComponent[raw[i].cellCode].recall = resResult[0][j].suprecallid;
-                            } 
-                            
+                            }
+
                             if (resResult[0][j].supholdingsid) {
                                 objComponent[raw[i].cellCode].holdings = resResult[0][j].supholdingsid;
-                            } 
-                            
+                            }
+
                             if (resResult[0][j].supetcid) {
                                 objComponent[raw[i].cellCode].etc = resResult[0][j].supetcid;
-                            } 
+                            }
                         }
                     }
                     resolve(objComponent);
@@ -68,17 +68,17 @@ class Product {
                 try {
                     var uniqueProductsCodes = Object.keys(data.preset);
                     var raw = data.dataset;
-                    
+
                     var groupObj = new Object();
 
                     uniqueProductsCodes.map((data) => {
                         groupObj[data] = {
-                            recall : null,
-                            holdings : null,
-                            etc : null,
+                            recall: null,
+                            holdings: null,
+                            etc: null,
                         }
                     })
-                    
+
                     for (var x = 0; x < uniqueProductsCodes.length; x++) {
                         console.log(uniqueProductsCodes[x])
                         for (var i = 0; i < raw.length; i++) {
@@ -126,7 +126,7 @@ class Product {
                             }
                         }
                     }
-                    for (var i = 0; i <uniqueProductsCodes.length; i++) {
+                    for (var i = 0; i < uniqueProductsCodes.length; i++) {
                         var distinctResponse = await logisConnection.query('SELECT * FROM supplies');
                         // DNT Initial, DNT Number Existence Check
                         // If there is no Initial DNT, then go to "if(distinctResponse[0][0] == undefined)" Process
@@ -145,13 +145,13 @@ class Product {
                             var preEx = await logisConnection.query('SELECT suprecallid, supholdingsid, supetcid FROM supplies WHERE distinctid IN (SELECT distinctid FROM supplyinqueries WHERE date = ? AND itemid = ?)', [raw[0].date, uniqueProductsCodes[i]])
 
                             if (preEx[0][0]) {
-                                if(preEx[0][0].suprecallid == null && groupObj[uniqueProductsCodes[i]].recall != null) {
+                                if (preEx[0][0].suprecallid == null && groupObj[uniqueProductsCodes[i]].recall != null) {
                                     await logisConnection.query('UPDATE supplies SET suprecallid =? WHERE distinctid IN (SELECT distinctid FROM supplyinqueries WHERE date = ? AND itemid = ?)', [groupObj[uniqueProductsCodes[i]].recall, raw[0].date, uniqueProductsCodes[i]]);
-                                } 
-                                
+                                }
+
                                 if (preEx[0][0].supholdingsid == null && groupObj[uniqueProductsCodes[i]].holdings != null) {
                                     await logisConnection.query('UPDATE supplies SET supholdingsid = ? WHERE distinctid IN (SELECT distinctid FROM supplyinqueries WHERE date = ? AND itemid = ?)', [groupObj[uniqueProductsCodes[i]].holdings, raw[0].date, uniqueProductsCodes[i]]);
-                                } 
+                                }
                                 if (preEx[0][0].supetcid == null && groupObj[uniqueProductsCodes[i]].etc != null) {
                                     await logisConnection.query('UPDATE supplies SET supetcid = ? WHERE distinctid IN (SELECT distinctid FROM supplyinqueries WHERE date = ? AND itemid = ?)', [groupObj[uniqueProductsCodes[i]].etc, raw[0].date, uniqueProductsCodes[i]]);
                                 }
@@ -164,7 +164,7 @@ class Product {
                                 await logisConnection.query('INSERT INTO supplyinqueries (date, itemid, distinctid) VALUES (? ,? ,?)', [raw[0].date, uniqueProductsCodes[i], groupObj[uniqueProductsCodes[i]].dnt])
                             }
                         }
-                        
+
                     }
                     resolve(1);
                 } catch (err) {
@@ -175,8 +175,8 @@ class Product {
         )
     }
 
-    checkExistenceOrder (raw) {
-        return new Promise (
+    checkExistenceOrder(raw) {
+        return new Promise(
             async (resolve, reject) => {
                 var productCodes = new Array();
                 raw.map((data) => {
@@ -189,27 +189,27 @@ class Product {
 
                 uniqueProductsCodes.map((data) => {
                     objComponent[data] = {
-                        sell : null,
-                        holdings : null,
-                        etc : null,
+                        sell: null,
+                        holdings: null,
+                        etc: null,
                     }
                 })
                 try {
-                    for ( var i = 0; i < raw.length; i++) {
+                    for (var i = 0; i < raw.length; i++) {
                         var sql = 'SELECT ordsellid, ordholdingsid, ordetcid FROM orders WHERE distinctid IN (SELECT distinctid FROM orderinqueries WHERE date = ? AND itemid = ?)';
                         var resResult = await logisConnection.query(sql, [raw[i].date, raw[i].cellCode]);
                         for (var j = 0; j < resResult[0].length; j++) {
                             if (resResult[0][j].ordsellid) {
                                 objComponent[raw[i].cellCode].sell = resResult[0][j].ordsellid;
-                            } 
-                            
+                            }
+
                             if (resResult[0][j].ordholdingsid) {
                                 objComponent[raw[i].cellCode].holdings = resResult[0][j].ordholdingsid;
-                            } 
-                            
+                            }
+
                             if (resResult[0][j].ordetcid) {
                                 objComponent[raw[i].cellCode].etc = resResult[0][j].ordetcid;
-                            } 
+                            }
                         }
                     }
                     resolve(objComponent);
@@ -220,23 +220,23 @@ class Product {
         )
     }
 
-    putOrderListToDB (data) {
+    putOrderListToDB(data) {
         return new Promise(
             async (resolve, reject) => {
                 try {
                     var uniqueProductsCodes = Object.keys(data.preset);
                     var raw = data.dataset;
-                    
+
                     var groupObj = new Object();
 
                     uniqueProductsCodes.map((data) => {
                         groupObj[data] = {
-                            sell : null,
-                            holdings : null,
-                            etc : null,
+                            sell: null,
+                            holdings: null,
+                            etc: null,
                         }
                     })
-                    
+
                     for (var x = 0; x < uniqueProductsCodes.length; x++) {
                         for (var i = 0; i < raw.length; i++) {
 
@@ -283,7 +283,7 @@ class Product {
                             }
                         }
                     }
-                    for (var i = 0; i <uniqueProductsCodes.length; i++) {
+                    for (var i = 0; i < uniqueProductsCodes.length; i++) {
                         var distinctResponse = await logisConnection.query('SELECT * FROM orders');
                         // DNT Initial, DNT Number Existence Check
                         // If there is no Initial DNT, then go to "if(distinctResponse[0][0] == undefined)" Process
@@ -302,13 +302,13 @@ class Product {
                             var preEx = await logisConnection.query('SELECT ordsellid, ordholdingsid, ordetcid FROM orders WHERE distinctid IN (SELECT distinctid FROM orderinqueries WHERE date = ? AND itemid = ?)', [raw[0].date, uniqueProductsCodes[i]])
 
                             if (preEx[0][0]) {
-                                if(preEx[0][0].ordsellid == null && groupObj[uniqueProductsCodes[i]].sell != null) {
+                                if (preEx[0][0].ordsellid == null && groupObj[uniqueProductsCodes[i]].sell != null) {
                                     await logisConnection.query('UPDATE orders SET ordsellid =? WHERE distinctid IN (SELECT distinctid FROM orderinqueries WHERE date = ? AND itemid = ?)', [groupObj[uniqueProductsCodes[i]].sell, raw[0].date, uniqueProductsCodes[i]]);
-                                } 
-                                
+                                }
+
                                 if (preEx[0][0].ordholdingsid == null && groupObj[uniqueProductsCodes[i]].holdings != null) {
                                     await logisConnection.query('UPDATE orders SET ordholdingsid = ? WHERE distinctid IN (SELECT distinctid FROM orderinqueries WHERE date = ? AND itemid = ?)', [groupObj[uniqueProductsCodes[i]].holdings, raw[0].date, uniqueProductsCodes[i]]);
-                                } 
+                                }
                                 if (preEx[0][0].ordetcid == null && groupObj[uniqueProductsCodes[i]].etc != null) {
                                     await logisConnection.query('UPDATE orders SET ordetcid = ? WHERE distinctid IN (SELECT distinctid FROM orderinqueries WHERE date = ? AND itemid = ?)', [groupObj[uniqueProductsCodes[i]].etc, raw[0].date, uniqueProductsCodes[i]]);
                                 }
@@ -321,7 +321,7 @@ class Product {
                                 await logisConnection.query('INSERT INTO orderinqueries (date, itemid, distinctid) VALUES (? ,? ,?)', [raw[0].date, uniqueProductsCodes[i], groupObj[uniqueProductsCodes[i]].dnt])
                             }
                         }
-                        
+
                     }
                     resolve(1);
                 } catch (err) {
@@ -332,38 +332,38 @@ class Product {
         )
     }
 
-    preSuppliedListWithoutItem (data) {
-        return new Promise (
+    preSuppliedListWithoutItem(data) {
+        return new Promise(
             async (resolve, reject) => {
                 var startDate = data.startYear + '-' + data.startMonth + '-' + data.startDay;
-                var endDate = data.endYear + '-' + data.endMonth + '-' +data.endDay;
+                var endDate = data.endYear + '-' + data.endMonth + '-' + data.endDay;
                 var resArray = new Array();
                 var getArray = new Array();
                 var objResponse = {
-                    date : null,
-                    items : {
-                        itemCode : null,
-                        itemName : null,
-                        itemVolume : null,
-                        objset : {
-                            recall : {
-                                id : null,
-                                qty : null
+                    date: null,
+                    items: {
+                        itemCode: null,
+                        itemName: null,
+                        itemVolume: null,
+                        objset: {
+                            recall: {
+                                id: null,
+                                qty: null
                             },
-                            holdings : {
-                                id : null,
-                                qty : null
+                            holdings: {
+                                id: null,
+                                qty: null
                             },
-                            etc : {
-                                id : null,
-                                qty : null
+                            etc: {
+                                id: null,
+                                qty: null
                             }
                         }
                     }
                 }
                 try {
                     var sql = 'SELECT DATE_FORMAT(date, "%Y-%m-%e") AS date, itemid, distinctid FROM supplyinqueries WHERE date BETWEEN ? AND ?';
-                    var response = await logisConnection.query(sql , [startDate, endDate]);
+                    var response = await logisConnection.query(sql, [startDate, endDate]);
                     var resData = response[0];
 
 
@@ -418,35 +418,35 @@ class Product {
                     reject(err)
                     console.log(err)
                 }
-            } 
+            }
         )
     }
 
-    preSuppliedList (data) {
-        return new Promise (
+    preSuppliedList(data) {
+        return new Promise(
             async (resolve, reject) => {
                 var startDate = data.startYear + '-' + data.startMonth + '-' + data.startDay;
-                var endDate = data.endYear + '-' + data.endMonth + '-' +data.endDay;
+                var endDate = data.endYear + '-' + data.endMonth + '-' + data.endDay;
                 var resArray = new Array();
                 var getArray = new Array();
                 var objResponse = {
-                    date : null,
-                    items : {
-                        itemCode : null,
-                        itemName : null,
-                        itemVolume : null,
-                        objset : {
-                            recall : {
-                                id : null,
-                                qty : null
+                    date: null,
+                    items: {
+                        itemCode: null,
+                        itemName: null,
+                        itemVolume: null,
+                        objset: {
+                            recall: {
+                                id: null,
+                                qty: null
                             },
-                            holdings : {
-                                id : null,
-                                qty : null
+                            holdings: {
+                                id: null,
+                                qty: null
                             },
-                            etc : {
-                                id : null,
-                                qty : null
+                            etc: {
+                                id: null,
+                                qty: null
                             }
                         }
                     }
@@ -454,7 +454,7 @@ class Product {
 
                 try {
                     var sql = 'SELECT DATE_FORMAT(date, "%Y-%m-%e") AS date, itemid, distinctid FROM supplyinqueries WHERE (date BETWEEN ? AND ?) AND itemid = ?';
-                    var response = await logisConnection.query(sql , [startDate, endDate, data.itemCode]);
+                    var response = await logisConnection.query(sql, [startDate, endDate, data.itemCode]);
                     var resData = response[0];
                     for (var i = 0; i < resData.length; i++) {
                         objResponse.date = resData[i].date;
@@ -463,7 +463,7 @@ class Product {
                         objResponse.items.itemCode = itemsResponse[0][0].code;
                         objResponse.items.itemName = itemsResponse[0][0].name;
                         objResponse.items.itemVolume = itemsResponse[0][0].volume;
-                        
+
                         // If there is no data related to Recall at Supplyrecalls database
                         var prerecallsupplies = await logisConnection.query('SELECT IFNULL(suprecallid, "empty") AS suprecallid FROM supplies WHERE distinctid=?', [resData[i].distinctid]);
                         if (prerecallsupplies[0][0].suprecallid == 'empty') {
@@ -503,6 +503,50 @@ class Product {
                         getArray[i] = JSON.parse(resArray[i]);
                     }
                     resolve(getArray)
+                } catch (err) {
+                    reject(err)
+                }
+            }
+        )
+    }
+
+    checkExistenceOverlack(raw) {
+        return new Promise(
+            async (resolve, reject) => {
+                var overlackProducts = new Array();
+                console.log(raw)
+                try {
+                    for (var i = 0; i < raw.length; i++) {
+                        var sql = 'SELECT overlackid FROM overlack WHERE date = ? AND itemid = ?';
+                        var resResult = await logisConnection.query(sql, [raw[i].date, raw[i].cellCode])
+                        if (!resResult[0][0]) {
+                            overlackProducts.push(raw[i])
+                        }
+                    }
+                    resolve(overlackProducts)
+                } catch (err) {
+                    reject(err)
+                }
+            }
+        )
+    }
+
+    putOverlackListToDB(data) {
+        return new Promise (
+            async (resolve, reject) => {
+                try {
+                    for (var i = 0; i < data.length; i++) {
+                        var sql = 'SELECT overlackid FROM overlack';
+                        var recentCode = await logisConnection.query(sql);
+                        if (!recentCode[0][0]) {
+                            var recentCode = 'O1';
+                        } else {
+                            var num = parseInt(recentCode[0].length) + 1;
+                            var recentCode = 'O' + num;
+                        }
+                        await logisConnection.query('INSERT INTO overlack (overlackid, date, itemid, qty) VALUES (?, ?, ?, ?)', [recentCode, data[i].date, data[i].cellCode, data[i].cellCnt])
+                    }
+                    resolve(1)
                 } catch (err) {
                     reject(err)
                 }

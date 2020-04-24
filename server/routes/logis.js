@@ -19,8 +19,8 @@ router.post('/putSupplyRequestToDB', async (req, res) => {
     //Re-Start
     var resResult = await logisModel.checkExistenceSupply(raw);
     reObj = {
-      dataset : [],
-      preset : resResult,
+      dataset: [],
+      preset: resResult,
     }
     for (var i = 0; i < raw.length; i++) {
       if (raw[i].cellDnt == '반품' && resResult[raw[i].cellCode].recall != null) {
@@ -51,8 +51,8 @@ router.post('/putOrderRequestToDB', async (req, res) => {
     //Re-Start
     var resResult = await logisModel.checkExistenceOrder(raw);
     reObj = {
-      dataset : [],
-      preset : resResult,
+      dataset: [],
+      preset: resResult,
     }
     for (var i = 0; i < raw.length; i++) {
       if (raw[i].cellDnt == '판매' && resResult[raw[i].cellCode].recall != null) {
@@ -107,7 +107,7 @@ router.get('/todayOrder', (req, res) => {
 });
 
 router.post('/requestPreSuppliedList', async (req, res) => {
-  try { 
+  try {
     var raw = req.body;
     if (raw.itemCode == null) {
       var responseResult = await logisModel.preSuppliedListWithoutItem(raw);
@@ -124,6 +124,19 @@ router.post('/requestPreSuppliedList', async (req, res) => {
 router.get('/overlack', (req, res) => {
   res.render('overlack');
 });
+
+router.post('/putOverlackRequestToDB', async (req, res) => {
+  try{
+    var raw = req.body.data;
+    console.log(raw)
+    var resResult = await logisModel.checkExistenceOverlack(raw);
+    console.log(resResult)
+    await logisModel.putOverlackListToDB(resResult);
+    res.send('성공')
+  } catch (err) {
+    console.log(err)
+  }
+})
 
 router.get('/inventoryManagement', (req, res) => {
   res.render('inventoryManagement')
