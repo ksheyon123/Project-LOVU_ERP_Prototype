@@ -1,7 +1,7 @@
 addOrderList = () => {
     if (document.getElementById('item_nm').childNodes[0] == undefined) {
         window.alert('제품이 입력되지 않았습니다')
-    } else if ( document.getElementById('item_cnt').value == '' ) {
+    } else if (document.getElementById('item_cnt').value == '') {
         window.alert('제품 요청 수량이 입력되지 않았습니다')
     } else {
         count++;
@@ -36,15 +36,15 @@ addOrderList = () => {
         objCell_Cp.innerHTML = row_cp;
 
         //Product Count
-        var objCell_Cnt= objRow.insertCell();
+        var objCell_Cnt = objRow.insertCell();
         objCell_Cnt.innerHTML = row_cnt;
-        
+
         //Price
-        var objCell_Price= objRow.insertCell();
+        var objCell_Price = objRow.insertCell();
         objCell_Price.innerHTML = row_price;
 
         //Requestor
-        var objCell_Rt= objRow.insertCell();
+        var objCell_Rt = objRow.insertCell();
         objCell_Rt.innerHTML = row_rt;
 
         //Supply Purpose (Distinct)
@@ -62,10 +62,20 @@ addOrderList = () => {
         //Note
         var objCell_Void = objRow.insertCell();
         objCell_Void.innerHTML = row_void;
+
+        document.getElementById('item_nm').innerHTML = '';
+        document.getElementById('item_code').innerHTML = '';
+        document.getElementById('item_cp').innerHTML = '';
+        document.getElementById('item_cnt').value = '';
+        document.getElementById('item_price').value = '';
+        document.getElementById('item_rt').value = '';
+        document.getElementById('item_sup').value = '';
+        document.getElementById('item_void').value = '';
     }
+
 }
 deleteOrderList = () => {
-    if(count < 1) {
+    if (count < 1) {
         count = 1;
     }
     count--;
@@ -74,5 +84,5 @@ deleteOrderList = () => {
     if (tblContent.rows.length < 1) return;
 
     //Delete From Last Table
-    tblContent.deleteRow(tblContent.rows.length-1);
+    tblContent.deleteRow(tblContent.rows.length - 1);
 }

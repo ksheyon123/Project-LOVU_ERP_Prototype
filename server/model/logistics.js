@@ -365,6 +365,7 @@ class Product {
                     var sql = 'SELECT DATE_FORMAT(date, "%Y-%m-%e") AS date, itemid, distinctid FROM supplyinqueries WHERE date BETWEEN ? AND ?';
                     var response = await logisConnection.query(sql, [startDate, endDate]);
                     var resData = response[0];
+                    console.log(resData)
 
 
                     for (var i = 0; i < resData.length; i++) {

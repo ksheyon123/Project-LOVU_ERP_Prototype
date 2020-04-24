@@ -12,7 +12,7 @@
 
     <div>
         입고 일자 : <div id='date'></div>
-        </p>
+        
         <p>
             제품명 : <input type='button' id='item' name='item' value='상품 조회'>
             <div id='item_nm'></div>
@@ -210,6 +210,8 @@
         item_code.innerHTML = data[0];
         item_nm.innerHTML = data[1];
         item_cp.innerHTML = data[2];
+
+        document.getElementById('responseitem').remove();
     }
 
     //Put Supply List To Database
