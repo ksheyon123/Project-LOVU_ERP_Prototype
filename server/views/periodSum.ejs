@@ -1,9 +1,45 @@
 <!DOCTYPE html>
 <html>
-    <head>
 
-    </head>
-    <body>
-        
-    </body>
+<head>
+    <script src="https://code.jquery.com/jquery-3.4.1.js"
+        integrity="sha256-WpOohJOqMqqyKL9FccASB9O0KwACQJpFTUBLTYOVvVU=" crossorigin="anonymous"></script>
+</head>
+
+<body>
+    날짜 :
+    <select id="start_year" name="start_year">
+    </select>
+    <select id="start_month" name="start_month">
+    </select>
+    <select id="start_day" name="start_day">
+    </select> ~
+    <select id="end_year" name="end_year">
+    </select>
+    <select id="end_month" name="end_month">
+    </select>
+    <select id="end_day" name="end_day">
+    </select>
+</body>
+<script src='/javascripts/period.js'></script>
+<script>
+    $(document).ready(async () => {
+        try {
+            const response = await fetch('http://localhost:3000/getPeriodData', {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            });
+
+            var json = response.json();
+            if (response.ok) {
+
+            }
+        } catch (err) {
+
+        }
+    })
+</script>
+
 </html>

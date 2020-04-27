@@ -150,10 +150,43 @@ router.post('/putOverlackRequestToDB', async (req, res) => {
   } catch (err) {
     console.log(err)
   }
-})
+});
 
 router.get('/inventoryManagement', (req, res) => {
   res.render('inventoryManagement')
+});
+
+router.get('/periodSum', (req, res) => {
+  res.render('periodSum')
+});
+
+router.get('/getPeriodData', async (req, res) => {
+  try {
+    
+    // Get All Items List
+    var productList = await logisModel.requestProductList();
+    console.log(productList)
+    // Get Date Data (7 Days Ago - Today )
+    for (var i  = 0; i < productList.length; i++) {
+
+    }
+    await logisModel.sumEnrolledQty();
+    //
+
+    obj = {
+      itemCode : null,
+      itemName : null,
+      recall : null,
+      holdings1 : null,
+      etc1 : null,
+      sell : null,
+      holdings2 : null,
+      etc2 : null
+
+    }
+  } catch (err) {
+    console.log(err)
+  }
 })
 
 module.exports = router;
