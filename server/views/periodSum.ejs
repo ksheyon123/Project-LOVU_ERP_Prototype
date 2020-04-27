@@ -20,16 +20,26 @@
     </select>
     <select id="end_day" name="end_day">
     </select>
+
+    <input type='button' id='periodBtn' value='조회' onclick='getPeriod()'>
 </body>
 <script src='/javascripts/period.js'></script>
 <script>
-    $(document).ready(async () => {
+
+    getPeriod = async () => {
+        var startYear = $('#start_year option:selected').val();
+        var startMonth = $('#start_month option:selected').val();
+        var startDay = $('#start_day option:selected').val();
+        var endYear = $('#end_year option:selected').val();
+        var endMonth = $('#end_month option:selected').val();
+        var endDay = $('#end_day option:selected').val();
         try {
             const response = await fetch('http://localhost:3000/getPeriodData', {
-                method: 'GET',
+                method: 'post',
                 headers: {
                     'Content-Type': 'application/json'
-                }
+                },
+                body : JSON.stringify({ startYear: startYear, startMonth: startMonth, startDay: startDay, endYear: endYear, endMonth: endMonth, endDay: endDay })
             });
 
             var json = response.json();
@@ -37,9 +47,9 @@
 
             }
         } catch (err) {
-
+            console.log(err)
         }
-    })
+    }
 </script>
 
 </html>

@@ -734,8 +734,11 @@ class Product {
     sumEnrolledQty (data) {
         return new Promise (
             async (resolve, reject) => {
+                var startDate = data.startYear + '-' + data.startMonth + '-' + data.startDay;
+                var endDate = data.endYear + '-' + data.endMonth + '-' + data.endDay;
+                var resArray = new Array();
                 try {
-                    
+                    var sql = 'SELECT * FROM supplyinqueries WHERE date BETWEEN ? AND ?'
                 } catch (err) {
 
                 }

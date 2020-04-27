@@ -10,8 +10,8 @@
     var day = date.getDate();
     var today = year + '-' + month + '-' + day;
 
-    var date = document.getElementById('date');
-    date.innerHTML = today;
+    // var date = document.getElementById('date');
+    // date.innerHTML = today;
 
     var sYear = document.getElementById('start_year');
     var sMonth = document.getElementById('start_month');
