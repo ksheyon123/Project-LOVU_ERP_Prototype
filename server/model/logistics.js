@@ -734,11 +734,23 @@ class Product {
     sumEnrolledQty (data) {
         return new Promise (
             async (resolve, reject) => {
-                var startDate = data.startYear + '-' + data.startMonth + '-' + data.startDay;
-                var endDate = data.endYear + '-' + data.endMonth + '-' + data.endDay;
+                var startDate = data.ddata.startYear + '-' + data.ddata.startMonth + '-' + data.ddata.startDay;
+                var endDate = data.ddata.endYear + '-' + data.ddata.endMonth + '-' + data.ddata.endDay;
+                var dataArray = data.raw;
                 var resArray = new Array();
                 try {
-                    var sql = 'SELECT * FROM supplyinqueries WHERE date BETWEEN ? AND ?'
+                    var resSupplyResult = await logisConnection.query('SELECT itemid, date, distinctid FROM supplyinqueries WHERE date BETWEEN ? AND ?', [startDate, endDate] );
+                    var resOrderResult = await logisConnection.query('SELECT itemid, date, distinctid FROM orderinqueries WHERE date BETWEEN ? AND ?', [startDate, endDate] );
+                    for (var i = 0; i < dataArray.length; i++) {
+                        for (var j = 0; j < resSupplyResult[0].length; j++) {
+                            if (dataArray[i].itemCode == resSupplyResult[0][j].itemid) {
+                                var suprecallqty = await logisConnection.query('SELECT qty FROM supplyrecalls WHERE suprecallid IN (SELECT suprecallid FROM supplies WHERE distinctid = ?)', [resSupplyResult[0][j].distinctid])
+                                dataArray[i].qty.recall = dataArray[i].qty.recall + suprecallqty[0][0].qty;
+                            }
+                        }
+
+                        
+                    }
                 } catch (err) {
 
                 }

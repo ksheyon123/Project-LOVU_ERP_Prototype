@@ -163,26 +163,36 @@ router.get('/periodSum', (req, res) => {
 router.post('/getPeriodData', async (req, res) => {
   try {
     console.log(req.body)
+    var rawObj = new Object();
+    var rawArr = new Array();
     // Get All Items List
     var productList = await logisModel.requestProductList();
     // Get Date Data (7 Days Ago - Today )
     for (var i  = 0; i < productList.length; i++) {
-
+      rawObj = {
+        itemCode : productList[i].code,
+        itemName : productList[i].name,
+        itemVolume : productList[i].volume,
+        qty : {
+          recall : null,
+          holdings1 : null,
+          etc1 : null,
+          sell : null,
+          holdings2 : null,
+          etc2 : null
+        }
+      }
+      rawArr.push(rawObj)
     }
-    await logisModel.sumEnrolledQty(req.body);
+
+    dataSet = {
+      ddata : req.body,
+      raw : rawArr,
+    }
+    await logisModel.sumEnrolledQty(dataSet);
     //
 
-    obj = {
-      itemCode : null,
-      itemName : null,
-      recall : null,
-      holdings1 : null,
-      etc1 : null,
-      sell : null,
-      holdings2 : null,
-      etc2 : null
-
-    }
+    
   } catch (err) {
     console.log(err)
   }
