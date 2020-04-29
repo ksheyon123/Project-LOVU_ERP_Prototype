@@ -162,7 +162,6 @@ router.get('/periodSum', (req, res) => {
 
 router.post('/getPeriodData', async (req, res) => {
   try {
-    console.log(req.body)
     var rawObj = new Object();
     var rawArr = new Array();
     // Get All Items List
@@ -174,12 +173,12 @@ router.post('/getPeriodData', async (req, res) => {
         itemName : productList[i].name,
         itemVolume : productList[i].volume,
         qty : {
-          recall : null,
-          holdings1 : null,
-          etc1 : null,
-          sell : null,
-          holdings2 : null,
-          etc2 : null
+          recall : 0,
+          holdings1 : 0,
+          etc1 : 0,
+          sell : 0,
+          holdings2 : 0,
+          etc2 : 0
         }
       }
       rawArr.push(rawObj)

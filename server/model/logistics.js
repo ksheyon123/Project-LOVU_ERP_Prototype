@@ -737,22 +737,29 @@ class Product {
                 var startDate = data.ddata.startYear + '-' + data.ddata.startMonth + '-' + data.ddata.startDay;
                 var endDate = data.ddata.endYear + '-' + data.ddata.endMonth + '-' + data.ddata.endDay;
                 var dataArray = data.raw;
-                var resArray = new Array();
+                console.log(startDate + endDate)
                 try {
                     var resSupplyResult = await logisConnection.query('SELECT itemid, date, distinctid FROM supplyinqueries WHERE date BETWEEN ? AND ?', [startDate, endDate] );
                     var resOrderResult = await logisConnection.query('SELECT itemid, date, distinctid FROM orderinqueries WHERE date BETWEEN ? AND ?', [startDate, endDate] );
+                    console.log('resSupplyResult', resSupplyResult[0])
                     for (var i = 0; i < dataArray.length; i++) {
                         for (var j = 0; j < resSupplyResult[0].length; j++) {
                             if (dataArray[i].itemCode == resSupplyResult[0][j].itemid) {
+                                console.log('dataArray[i].itemCode', dataArray[i].itemCode)
                                 var suprecallqty = await logisConnection.query('SELECT qty FROM supplyrecalls WHERE suprecallid IN (SELECT suprecallid FROM supplies WHERE distinctid = ?)', [resSupplyResult[0][j].distinctid])
-                                dataArray[i].qty.recall = dataArray[i].qty.recall + suprecallqty[0][0].qty;
+                                console.log('suprecallqty', suprecallqty[0])
+                                if (!suprecallqty[0][0]) {
+                                    num = 0;
+                                } else {
+                                    var num = suprecallqty[0][0].qty;
+                                }
+                                dataArray[i].qty.recall = parseInt(dataArray[i].qty.recall) + parseInt(num);
+                                console.log('a', dataArray[70])
                             }
                         }
-
-                        
                     }
                 } catch (err) {
-
+                    console.log(err)
                 }
             }
         )
