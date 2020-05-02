@@ -13,7 +13,8 @@
     요청자 : <input type='text' name='incharge' id='incharge'>
     전화번호 : <input type='text' name='cphone' id='cphone'>
     출고일자 : <input type='text' name='deliverydate' id='deliverydate'>
-    출고방법 : 직접수령<input type='radio' id='deliveryway' name='deliveryway' value='직접수령' checked> 택배<input type='radio' id='deliveryway' name='deliveryway' value='택배'>
+    출고방법 : 직접수령<input type='radio' id='deliveryway' name='deliveryway' value='직접수령' checked> 택배<input type='radio'
+        id='deliveryway' name='deliveryway' value='택배'>
     <br>
     <br>
     실구매자 : <input type='text' name='orderer' id='orderer'>
@@ -55,7 +56,7 @@
         </table>
     </div>
     <p>
-        <button type='button' id='requestBtn' name='requestBtn' onclick='putRequestToDB()'>발주 요청</button>
+        <button type='button' id='requestBtn' name='requestBtn' onclick='putRequestToDB()'>출고 요청</button>
     </p>
 </body>
 
@@ -69,6 +70,21 @@
             <button id='requestItemListBtn' onclick='requestItemList()'>조회</button>
 
             <div id='responseitem'></div>
+            <div>
+                <table width='1500px'>
+                    <tr>
+                        <td>No.</td>
+                        <td>제품코드</td>
+                        <td>제품명</td>
+                        <td>용량</td>
+                    </tr>
+                    <tbody id='resTblShow'>
+
+                    </tbody>
+                </table>
+            </div>
+            <div id='indexNum'></div>
+
         </p>
     </div>
 </div>
@@ -80,6 +96,8 @@
     requestItemList = async () => {
         var searchItem = document.getElementById('searchitem').value;
         var responseItem = document.getElementById('responseitem');
+        var index = document.getElementById('indexNum');
+        var objRow;
         const response = await fetch('http://localhost:3000/requestItemList', {
             method: 'POST',
             headers: {
@@ -93,11 +111,22 @@
             if (json[0] == undefined) {
                 window.alert('조회한 제품이 존재하지 않습니다')
             } else {
+
+                var maxPage = Math.round(json.length / 10)
+
+                for (var i = 1; i <= maxPage; i++) {
+                    var newSpan = document.createElement('span');
+                    newSpan.innerHTML = "<input type='button' value='" + `${i}` + "'>";
+                    var data = newSpan;
+                    index.append(data);
+                }
+
                 for (var i = 0; i < json.length; i++) {
-                    var newP = document.createElement('p');
-                    newP.innerHTML = "<button type='button' onclick='putRequest(" + `${JSON.stringify(json[i])}` + ")'>" + "선택" + "</button>" + json[i][1];
-                    var data = newP;
-                    responseItem.append(data);
+                    console.log(i)
+                    objRow = document.all('resTblShow').insertRow();
+
+                    var objCell_Num = objRow.insertCell();
+                    objCell_Num.innerHTML = i + 1;
                 }
             }
         }
@@ -110,9 +139,14 @@
         item_code.innerHTML = data[0];
         item_nm.innerHTML = data[1];
         item_cp.innerHTML = data[2];
+
+        var cell = document.getElementById('responseitem');
+        while (cell.hasChildNodes()) {
+            cell.removeChild(cell.firstChild);
+        }
     }
 
-    
+
     putRequestToDB = async () => {
         try {
             var tblContent = document.getElementById('tblShow');
@@ -157,7 +191,7 @@
         }
     }
 
-    
+
 </script>
 <style>
     .dropdown-content {
