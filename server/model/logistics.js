@@ -731,13 +731,13 @@ class Product {
         )
     }
 
-    sumEnrolledQty (data) {
+
+    sumEnrolledQty(data) {
         return new Promise (
             async (resolve, reject) => {
                 var startDate = data.ddata.startYear + '-' + data.ddata.startMonth + '-' + data.ddata.startDay;
                 var endDate = data.ddata.endYear + '-' + data.ddata.endMonth + '-' + data.ddata.endDay;
                 var dataArray = data.raw;
-                console.log(startDate + endDate)
                 try {
                     var resSupplyResult = await logisConnection.query('SELECT itemid, date, distinctid FROM supplyinqueries WHERE date BETWEEN ? AND ?', [startDate, endDate] );
                     var resOrderResult = await logisConnection.query('SELECT itemid, date, distinctid FROM orderinqueries WHERE date BETWEEN ? AND ?', [startDate, endDate] );
@@ -796,7 +796,32 @@ class Product {
                     }
                     resolve(dataArray)
                 } catch (err) {
-                    console.log(err)
+                    reject(err)
+                }
+            }
+        )
+    }
+    getEnrolledOverlackQty (data) {
+        return new Promise (
+            async (resolve, reject) => {
+                var startDate = data.ddata.startYear + '-' + data.ddata.startMonth + '-' + data.ddata.startDay;
+                var endDate = data.ddata.endYear + '-' + data.ddata.endMonth + '-' + data.ddata.endDay;
+                var dataArray = data.raw;
+                try {
+                    var resOverlackResult = await logisConnection.query('SELECT overlackid, itemid, qty, status FROM overlack WHERE date BETWEEN ? AND ?', [startDate, endDate] );
+                    for (var i = 0; i < dataArray.length; i++) {
+                        for (var j = 0; j < resOverlackResult[0].length; j++) {
+                            if (dataArray[i].itemCode == resOverlackResult[0][j].itemid) {
+                                if (resOverlackResult[0][j].status == 0) {
+                                    dataArray[i].qty.over = parseInt(dataArray[i].qty.over) + parseInt(resOverlackResult[0][j].qty);
+                                } else {
+                                    dataArray[i].qty.lack = parseInt(dataArray[i].qty.lack) + parseInt(resOverlackResult[0][j].qty);
+                                }
+                            }
+                        }
+                    }
+                    resolve(dataArray)
+                } catch (err) {
                     reject(err)
                 }
             }

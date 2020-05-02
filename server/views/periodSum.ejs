@@ -35,14 +35,15 @@
         var endDay = $('#end_day option:selected').val();
         try {
             const response = await fetch('http://localhost:3000/getPeriodData', {
-                method: 'post',
+                method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
                 },
                 body : JSON.stringify({ startYear: startYear, startMonth: startMonth, startDay: startDay, endYear: endYear, endMonth: endMonth, endDay: endDay })
             });
 
-            var json = response.json();
+            var json = await response.json();
+            console.log(json)
             if (response.ok) {
 
             }

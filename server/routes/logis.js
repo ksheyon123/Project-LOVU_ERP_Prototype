@@ -115,7 +115,6 @@ router.post('/requestPreOrderedList', async (req, res) => {
     } else {
       var responseResult = await logisModel.preOrderedList(raw);
     }
-    console.log(responseResult)
     res.send(responseResult)
   } catch (err) {
     console.log(err)
@@ -130,7 +129,6 @@ router.post('/requestPreSuppliedList', async (req, res) => {
     } else {
       var responseResult = await logisModel.preSuppliedList(raw);
     }
-    console.log(responseResult)
     res.send(responseResult)
   } catch (err) {
     console.log(err)
@@ -142,7 +140,7 @@ router.get('/overlack', (req, res) => {
 });
 
 router.post('/putOverlackRequestToDB', async (req, res) => {
-  try{
+  try {
     var raw = req.body.data;
     var resResult = await logisModel.checkExistenceOverlack(raw);
     await logisModel.putOverlackListToDB(resResult);
@@ -166,36 +164,34 @@ router.post('/getPeriodData', async (req, res) => {
     var rawArr = new Array();
     // Get All Items List
     var productList = await logisModel.requestProductList();
-    // Get Date Data (7 Days Ago - Today )
-    for (var i  = 0; i < productList.length; i++) {
+
+    for (var i = 0; i < productList.length; i++) {
       rawObj = {
-        itemCode : productList[i].code,
-        itemName : productList[i].name,
-        itemVolume : productList[i].volume,
-        qty : {
-          recall : 0,
-          holdings1 : 0,
-          etc1 : 0,
-          sell : 0,
-          holdings2 : 0,
-          etc2 : 0
+        itemCode: productList[i].code,
+        itemName: productList[i].name,
+        itemVolume: productList[i].volume,
+        qty: {
+          recall: 0,
+          holdings1: 0,
+          etc1: 0,
+          sell: 0,
+          holdings2: 0,
+          etc2: 0,
+          over: 0,
+          lack: 0,
         }
       }
       rawArr.push(rawObj)
     }
-
     dataSet = {
-      ddata : req.body,
-      raw : rawArr,
+      ddata: req.body,
+      raw: rawArr,
     }
-    var res = await logisModel.sumEnrolledQty(dataSet);
-    console.log(res[0])
-    console.log(res[4])
-    console.log(res[70])
-    console.log(res[67])
+    var putAllQty = await logisModel.sumEnrolledQty(dataSet);
+    dataSet.raw = putAllQty;
+    var allResult = await logisModel.getEnrolledOverlackQty(dataSet)
+    res.send(allResult);
 
-
-    
   } catch (err) {
     console.log(err)
   }
