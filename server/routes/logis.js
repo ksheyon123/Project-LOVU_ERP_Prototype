@@ -188,8 +188,12 @@ router.post('/getPeriodData', async (req, res) => {
       ddata : req.body,
       raw : rawArr,
     }
-    await logisModel.sumEnrolledQty(dataSet);
-    //
+    var res = await logisModel.sumEnrolledQty(dataSet);
+    console.log(res[0])
+    console.log(res[4])
+    console.log(res[70])
+    console.log(res[67])
+
 
     
   } catch (err) {

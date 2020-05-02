@@ -741,25 +741,63 @@ class Product {
                 try {
                     var resSupplyResult = await logisConnection.query('SELECT itemid, date, distinctid FROM supplyinqueries WHERE date BETWEEN ? AND ?', [startDate, endDate] );
                     var resOrderResult = await logisConnection.query('SELECT itemid, date, distinctid FROM orderinqueries WHERE date BETWEEN ? AND ?', [startDate, endDate] );
-                    console.log('resSupplyResult', resSupplyResult[0])
                     for (var i = 0; i < dataArray.length; i++) {
                         for (var j = 0; j < resSupplyResult[0].length; j++) {
                             if (dataArray[i].itemCode == resSupplyResult[0][j].itemid) {
-                                console.log('dataArray[i].itemCode', dataArray[i].itemCode)
                                 var suprecallqty = await logisConnection.query('SELECT qty FROM supplyrecalls WHERE suprecallid IN (SELECT suprecallid FROM supplies WHERE distinctid = ?)', [resSupplyResult[0][j].distinctid])
-                                console.log('suprecallqty', suprecallqty[0])
+                                var supholdingsqty = await logisConnection.query('SELECT qty FROM supplyholdings WHERE supholdingsid IN (SELECT supholdingsid FROM supplies WHERE distinctid = ?)', [resSupplyResult[0][j].distinctid])
+                                var supetcqty = await logisConnection.query('SELECT qty FROM supplyetc WHERE supetcid IN (SELECT supetcid FROM supplies WHERE distinctid = ?)', [resSupplyResult[0][j].distinctid])
                                 if (!suprecallqty[0][0]) {
-                                    num = 0;
+                                    num1 = 0;
                                 } else {
-                                    var num = suprecallqty[0][0].qty;
+                                    var num1 = suprecallqty[0][0].qty;
                                 }
-                                dataArray[i].qty.recall = parseInt(dataArray[i].qty.recall) + parseInt(num);
-                                console.log('a', dataArray[70])
+                                if (!supholdingsqty[0][0]) {
+                                    num2 = 0;
+                                } else {
+                                    var num2 = supholdingsqty[0][0].qty;
+                                }
+                                if (!supetcqty[0][0]) {
+                                    num3 = 0;
+                                } else {
+                                    var num3 = supetcqty[0][0].qty;
+                                }
+                                dataArray[i].qty.recall = parseInt(dataArray[i].qty.recall) + parseInt(num1);
+                                dataArray[i].qty.holdings1 = parseInt(dataArray[i].qty.holdings1) + parseInt(num2);
+                                dataArray[i].qty.etc1 = parseInt(dataArray[i].qty.etc1) + parseInt(num3);
+                            }
+                        }
+
+                        for (var w = 0; w < resOrderResult[0].length; w++) {
+                            if (dataArray[i].itemCode == resOrderResult[0][w].itemid) {
+                                var ordsellqty = await logisConnection.query('SELECT qty FROM ordersells WHERE ordsellid IN (SELECT ordsellid FROM orders WHERE distinctid = ?)', [resOrderResult[0][w].distinctid])
+                                var ordholdingsqty = await logisConnection.query('SELECT qty FROM orderholdings WHERE ordholdingsid IN (SELECT ordholdingsid FROM orders WHERE distinctid = ?)', [resOrderResult[0][w].distinctid])
+                                var ordetcqty = await logisConnection.query('SELECT qty FROM orderetc WHERE ordetcid IN (SELECT ordetcid FROM orders WHERE distinctid = ?)', [resOrderResult[0][w].distinctid])
+                                if (!ordsellqty[0][0]) {
+                                    num4 = 0;
+                                } else {
+                                    var num4 = ordsellqty[0][0].qty;
+                                }
+                                if (!ordholdingsqty[0][0]) {
+                                    num5 = 0;
+                                } else {
+                                    var num5 = ordholdingsqty[0][0].qty;
+                                }
+                                if (!ordetcqty[0][0]) {
+                                    num6 = 0;
+                                } else {
+                                    var num6 = ordetcqty[0][0].qty;
+                                }
+                                dataArray[i].qty.sell = parseInt(dataArray[i].qty.sell) + parseInt(num4);
+                                dataArray[i].qty.holdings2 = parseInt(dataArray[i].qty.holdings2) + parseInt(num5);
+                                dataArray[i].qty.etc2 = parseInt(dataArray[i].qty.etc2) + parseInt(num6);
                             }
                         }
                     }
+                    resolve(dataArray)
                 } catch (err) {
                     console.log(err)
+                    reject(err)
                 }
             }
         )
