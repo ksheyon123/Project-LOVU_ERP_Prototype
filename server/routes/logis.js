@@ -6,11 +6,22 @@ router.get('/', (req, res, next) => {
   res.render('index');
 });
 
-//Logistic
+//Render requestLogis Page
 router.get('/requestLogis', (req, res) => {
   res.render('requestLogis')
 });
 
+router.post('/putRequestLogisToDB', async (req, res) => {
+  try {
+    var raw = req.body.data;
+    await logisModel.putRequestListToDB(raw)
+    res.send({result : 1})
+  } catch (err) {
+    console.log(err)
+  }
+});
+
+//Insert Supply Item List to Database
 router.post('/putSupplyRequestToDB', async (req, res) => {
   try {
     var raw = req.body.data;
@@ -43,6 +54,7 @@ router.post('/putSupplyRequestToDB', async (req, res) => {
   }
 });
 
+//Insert Order Item List to Database
 router.post('/putOrderRequestToDB', async (req, res) => {
   try {
     var raw = req.body.data;
@@ -79,7 +91,7 @@ router.get('/todaySupply', (req, res) => {
   res.render('todaySupply')
 })
 
-//todaySupply Page, Search Product From Databaseß Router
+//todaySupply, todayOrder, requestLogis Page, Search Product From Database Router
 router.post('/requestItemList', async (req, res) => {
   try {
     console.log(req.body)
@@ -102,10 +114,12 @@ router.post('/requestItemList', async (req, res) => {
   }
 })
 
+//Render todayOrder Page
 router.get('/todayOrder', (req, res) => {
   res.render('todayOrder')
 });
 
+//Get Pre-Ordered Item List From Database
 router.post('/requestPreOrderedList', async (req, res) => {
   try {
     var raw = req.body;
@@ -119,8 +133,9 @@ router.post('/requestPreOrderedList', async (req, res) => {
   } catch (err) {
     console.log(err)
   }
-})
+});
 
+//Get Pre-Supplied Item List From Database
 router.post('/requestPreSuppliedList', async (req, res) => {
   try {
     var raw = req.body;
@@ -135,10 +150,12 @@ router.post('/requestPreSuppliedList', async (req, res) => {
   }
 });
 
+//Render Overlack Page
 router.get('/overlack', (req, res) => {
   res.render('overlack');
 });
 
+//Insert Over-Lack Item List to Database
 router.post('/putOverlackRequestToDB', async (req, res) => {
   try {
     var raw = req.body.data;
@@ -150,14 +167,17 @@ router.post('/putOverlackRequestToDB', async (req, res) => {
   }
 });
 
+//Render inventoryManagement Page
 router.get('/inventoryManagement', (req, res) => {
   res.render('inventoryManagement')
 });
 
+//Render periodSum Page
 router.get('/periodSum', (req, res) => {
   res.render('periodSum')
 });
 
+//Get Enrolled Item List based on Period From Database
 router.post('/getPeriodData', async (req, res) => {
   try {
     var rawObj = new Object();
@@ -195,6 +215,6 @@ router.post('/getPeriodData', async (req, res) => {
   } catch (err) {
     console.log(err)
   }
-})
+});
 
 module.exports = router;

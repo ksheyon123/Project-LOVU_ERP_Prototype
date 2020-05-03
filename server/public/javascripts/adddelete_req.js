@@ -1,8 +1,8 @@
 addOrderList = () => {
     count++;
     var objRow;
-    var row_nm = document.getElementById('item_nm').childNodes[0].textContent;
     var row_code = document.getElementById('item_code').childNodes[0].textContent;
+    var row_nm = document.getElementById('item_nm').childNodes[0].textContent;
     var row_cp = document.getElementById('item_cp').childNodes[0].textContent;
     var row_cnt = document.getElementById('item_cnt').value;
     var row_rt = document.getElementById('incharge').value;

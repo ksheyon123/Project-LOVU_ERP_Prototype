@@ -16,6 +16,29 @@ class Product {
         )
     }
 
+    putRequestListToDB(data) {
+        return new Promise(
+            async (resolve, reject) => {
+                try {
+                    for (var i = 0; i < data.length; i++) {
+                        var reqResponse = await logisConnection.query('SELECT requestid FROM requests')
+                        if (reqResponse[0][0] == undefined) {
+                            var reqid = 'REQ1';
+                        } else {
+                            var num = parseInt(reqResponse[0].length) + 1;
+                            var reqid = 'R' + num;
+                        }
+                        await logisConnection.query('INSERT INTO requests (requestid, itemid, rt, trp, date, dway, ord, ordp, cmp, addr, qty) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ? )', [reqid, data.cellCode, data.cellRt, data.cellRtp, data.cellDate, data.cellDway, data.cellOrd, data.cellOrdp, data.cellCmy, data.cellAddr]);
+                    }
+                    resolve(1)
+                } catch (err) {
+                    console.log(err);
+                    reject(err);
+                }
+            }
+        )
+    }
+
     checkExistenceSupply(raw) {
         return new Promise(
             async (resolve, reject) => {
@@ -709,7 +732,7 @@ class Product {
     }
 
     putOverlackListToDB(data) {
-        return new Promise (
+        return new Promise(
             async (resolve, reject) => {
                 try {
                     for (var i = 0; i < data.length; i++) {
@@ -733,14 +756,14 @@ class Product {
 
 
     sumEnrolledQty(data) {
-        return new Promise (
+        return new Promise(
             async (resolve, reject) => {
                 var startDate = data.ddata.startYear + '-' + data.ddata.startMonth + '-' + data.ddata.startDay;
                 var endDate = data.ddata.endYear + '-' + data.ddata.endMonth + '-' + data.ddata.endDay;
                 var dataArray = data.raw;
                 try {
-                    var resSupplyResult = await logisConnection.query('SELECT itemid, date, distinctid FROM supplyinqueries WHERE date BETWEEN ? AND ?', [startDate, endDate] );
-                    var resOrderResult = await logisConnection.query('SELECT itemid, date, distinctid FROM orderinqueries WHERE date BETWEEN ? AND ?', [startDate, endDate] );
+                    var resSupplyResult = await logisConnection.query('SELECT itemid, date, distinctid FROM supplyinqueries WHERE date BETWEEN ? AND ?', [startDate, endDate]);
+                    var resOrderResult = await logisConnection.query('SELECT itemid, date, distinctid FROM orderinqueries WHERE date BETWEEN ? AND ?', [startDate, endDate]);
                     for (var i = 0; i < dataArray.length; i++) {
                         for (var j = 0; j < resSupplyResult[0].length; j++) {
                             if (dataArray[i].itemCode == resSupplyResult[0][j].itemid) {
@@ -801,14 +824,14 @@ class Product {
             }
         )
     }
-    getEnrolledOverlackQty (data) {
-        return new Promise (
+    getEnrolledOverlackQty(data) {
+        return new Promise(
             async (resolve, reject) => {
                 var startDate = data.ddata.startYear + '-' + data.ddata.startMonth + '-' + data.ddata.startDay;
                 var endDate = data.ddata.endYear + '-' + data.ddata.endMonth + '-' + data.ddata.endDay;
                 var dataArray = data.raw;
                 try {
-                    var resOverlackResult = await logisConnection.query('SELECT overlackid, itemid, qty, status FROM overlack WHERE date BETWEEN ? AND ?', [startDate, endDate] );
+                    var resOverlackResult = await logisConnection.query('SELECT overlackid, itemid, qty, status FROM overlack WHERE date BETWEEN ? AND ?', [startDate, endDate]);
                     for (var i = 0; i < dataArray.length; i++) {
                         for (var j = 0; j < resOverlackResult[0].length; j++) {
                             if (dataArray[i].itemCode == resOverlackResult[0][j].itemid) {

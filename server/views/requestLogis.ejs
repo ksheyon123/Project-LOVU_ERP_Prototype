@@ -4,23 +4,123 @@
 <head>
     <script src="https://code.jquery.com/jquery-3.4.1.js"
         integrity="sha256-WpOohJOqMqqyKL9FccASB9O0KwACQJpFTUBLTYOVvVU=" crossorigin="anonymous"></script>
+    <script>
+        paging = async (json, totalData, dataPerPage, pageCount, currentPage) => {
+
+            var totalPage = Math.ceil(totalData / dataPerPage);    // 총 페이지 수
+            var pageGroup = Math.ceil(currentPage / pageCount);    // 페이지 그룹
+
+            var last = pageGroup * pageCount;    // 화면에 보여질 마지막 페이지 번호
+            if (last > totalPage) last = totalPage;
+            var first = last - (pageCount - 1);    // 화면에 보여질 첫번째 페이지 번호
+            var next = last + 1;
+            var prev = first - 1;
+
+            var $pingingView = $("#paging");
+
+            var html = "";
+
+            if (prev > 0)
+                html += "<a href=# id='prev'><</a> ";
+
+            for (var i = first; i <= last; i++) {
+                html += "<a href='#' id=" + i + ">" + i + "</a> ";
+            }
+
+            if (last < totalPage)
+                html += "<a href=# id='next'>></a>";
+
+            $("#paging").html(html);    // 페이지 목록 생성
+            $("#paging a").css("color", "black");
+            $("#paging a#" + currentPage).css({
+                "text-decoration": "none",
+                "color": "red",
+                "font-weight": "bold"
+            });    // 현재 페이지 표시
+            var st = (currentPage - 1) * 10;
+            if (currentPage * 10 > totalData) {
+                
+                var en = totalData;
+                for (var i = st; i < totalData; i++) {
+
+                    objRow = document.all('resTblShow').insertRow();
+
+                    var objCell_Num = objRow.insertCell();
+                    objCell_Num.innerHTML = i + 1;
+                    var objCell_Code = objRow.insertCell();
+                    objCell_Code.innerHTML = json[i][0];
+                    var objCell_Name = objRow.insertCell();
+                    objCell_Name.innerHTML = json[i][1];
+                    var objCell_Cp = objRow.insertCell();
+                    objCell_Cp.innerHTML = json[i][2];
+                }
+            } else {
+                for (var i = st; i < currentPage * 10; i++) {
+
+                    objRow = document.all('resTblShow').insertRow();
+
+                    var objCell_Num = objRow.insertCell();
+                    objCell_Num.innerHTML = i + 1;
+                    var objCell_Code = objRow.insertCell();
+                    objCell_Code.innerHTML = json[i][0];
+                    var objCell_Name = objRow.insertCell();
+                    objCell_Name.innerHTML = json[i][1];
+                    var objCell_Cp = objRow.insertCell();
+                    objCell_Cp.innerHTML = json[i][2];
+                }
+            }
+
+            $("#paging a").click(function () {
+                var cell = document.getElementById('resTblShow');
+                console.log('cell', cell)
+                while (cell.hasChildNodes()) {
+                    cell.removeChild(cell.firstChild);
+                }
+                var $item = $(this);
+                var $id = $item.attr("id");
+                var selectedPage = $item.text();
+
+                if ($id == "next") selectedPage = next;
+                if ($id == "prev") selectedPage = prev;
+
+                paging(json, totalData, dataPerPage, pageCount, selectedPage);
+            });
+        }
+    </script>
 </head>
 
 <body>
     <h1>Dr.MEI Logistics</h1>
     <h2>닥터 메이 제품 출고 요청 페이지 입니다</h2>
     <br>
-    요청자 : <input type='text' name='incharge' id='incharge'>
-    전화번호 : <input type='text' name='cphone' id='cphone'>
-    출고일자 : <input type='text' name='deliverydate' id='deliverydate'>
-    출고방법 : 직접수령<input type='radio' id='deliveryway' name='deliveryway' value='직접수령' checked> 택배<input type='radio'
-        id='deliveryway' name='deliveryway' value='택배'>
+    <p>
+        요청자 : <input type='text' name='incharge' id='incharge'>
+    </p>
+    <p>
+        전화번호 : <input type='text' name='cphone' id='cphone'>
+    </p>
+    <p>
+        출고일자 : <div name='deliverydate' id='deliverydate'></div>
+    </p>
+    <p>
+        출고방법 : 직접수령<input type='radio' id='deliveryway' name='deliveryway' value='직접수령' checked> 택배<input type='radio'
+            id='deliveryway' name='deliveryway' value='택배'>
+    </p>
+
     <br>
     <br>
-    실구매자 : <input type='text' name='orderer' id='orderer'>
-    전화번호 : <input type='text' name='ophone' id='ophone'>
-    업체명 : <input type='text' name='companyname' id='companyname'>
-    주소 : <input type='text' name='address' id='address'>
+    <p>
+        실구매자 : <input type='text' name='orderer' id='orderer'>
+    </p>
+    <p>
+        전화번호 : <input type='text' name='ophone' id='ophone'>
+    </p>
+    <p>
+        업체명 : <input type='text' name='companyname' id='companyname'>
+    </p>
+    <p>
+        주소 : <input type='text' name='address' id='address'>
+    </p>
     <p>
         제품 코드 : <div id='item_code'></div>
         제품명 : <div id='item_nm'></div>
@@ -71,7 +171,7 @@
 
             <div id='responseitem'></div>
             <div>
-                <table width='1500px'>
+                <table width='500px'>
                     <tr>
                         <td>No.</td>
                         <td>제품코드</td>
@@ -83,7 +183,11 @@
                     </tbody>
                 </table>
             </div>
-            <div id='indexNum'></div>
+            <div class='pagination-wrapper clearfix'>
+                <ul class='pagination float--right' id='paging'>
+
+                </ul>
+            </div>
 
         </p>
     </div>
@@ -92,6 +196,14 @@
 <script src='/javascripts/adddelete_req.js'></script>
 <script>
     var count = 0;
+    var date = new Date();
+    var year = date.getFullYear();
+    var month = date.getMonth() + 1;
+    var day = date.getDate();
+    var today = year + '-' + month + '-' + day;
+
+    var date = document.getElementById('deliverydate');
+    date.innerHTML = today;
 
     requestItemList = async () => {
         var searchItem = document.getElementById('searchitem').value;
@@ -107,27 +219,33 @@
         })
 
         var json = await response.json();
+        console.log('json', json)
         if (response.ok) {
             if (json[0] == undefined) {
                 window.alert('조회한 제품이 존재하지 않습니다')
             } else {
 
-                var maxPage = Math.round(json.length / 10)
+                var maxPage = json.length;
+                paging(json, maxPage, 10, 5, 1)
+                // for (var i = 1; i <= maxPage; i++) {
+                //     var newSpan = document.createElement('span');
+                //     newSpan.innerHTML = "<input type='button' value='" + `${i}` + "'>";
+                //     var data = newSpan;
+                //     index.append(data);
+                // }
 
-                for (var i = 1; i <= maxPage; i++) {
-                    var newSpan = document.createElement('span');
-                    newSpan.innerHTML = "<input type='button' value='" + `${i}` + "'>";
-                    var data = newSpan;
-                    index.append(data);
-                }
+                // for (var i = 0; i < json.length; i++) {
+                //     objRow = document.all('resTblShow').insertRow();
 
-                for (var i = 0; i < json.length; i++) {
-                    console.log(i)
-                    objRow = document.all('resTblShow').insertRow();
-
-                    var objCell_Num = objRow.insertCell();
-                    objCell_Num.innerHTML = i + 1;
-                }
+                //     var objCell_Num = objRow.insertCell();
+                //     objCell_Num.innerHTML = i + 1;
+                //     var objCell_Code = objRow.insertCell();
+                //     objCell_Code.innerHTML = json[i][0];
+                //     var objCell_Name = objRow.insertCell();
+                //     objCell_Name.innerHTML = json[i][1];
+                //     var objCell_Cp = objRow.insertCell();
+                //     objCell_Cp.innerHTML = json[i][2];
+                // }
             }
         }
     }
@@ -146,7 +264,6 @@
         }
     }
 
-
     putRequestToDB = async () => {
         try {
             var tblContent = document.getElementById('tblShow');
@@ -157,23 +274,20 @@
                 window.alert('주문을 요청할 상품을 기록해주세요')
             } else {
                 for (var i = 1; i < tblData.length; i++) {
-                    var cellNm = tblData[i].cells[1].getElementsByTagName('input')[0].value;
-                    var cellCp = tblData[i].cells[2].getElementsByTagName('input')[0].value;
-                    var cellCnt = tblData[i].cells[3].getElementsByTagName('input')[0].value;
-                    var cellPrice = tblData[i].cells[4].getElementsByTagName('input')[0].value;
-                    var cellVoid = tblData[i].cells[5].getElementsByTagName('input')[0].value;
-                    var cellVoid = tblData[i].cells[6].getElementsByTagName('input')[0].value;
-                    var cellVoid = tblData[i].cells[7].getElementsByTagName('input')[0].value;
-                    var cellVoid = tblData[i].cells[8].getElementsByTagName('input')[0].value;
-                    var cellVoid = tblData[i].cells[9].getElementsByTagName('input')[0].value;
-                    var cellVoid = tblData[i].cells[10].getElementsByTagName('input')[0].value;
-                    var cellVoid = tblData[i].cells[11].getElementsByTagName('input')[0].value;
-                    var cellVoid = tblData[i].cells[12].getElementsByTagName('input')[0].value;
+                    var cellCode = tblData[i].cells[1].getElementsByTagName('input')[0].value;
+                    var cellRt = tblData[i].cells[5].getElementsByTagName('input')[0].value;
+                    var cellRtp = tblData[i].cells[6].getElementsByTagName('input')[0].value;
+                    var cellDate = tblData[i].cells[7].getElementsByTagName('input')[0].value;
+                    var cellDway = tblData[i].cells[8].getElementsByTagName('input')[0].value;
+                    var cellOrd = tblData[i].cells[9].getElementsByTagName('input')[0].value;
+                    var cellOrdp = tblData[i].cells[10].getElementsByTagName('input')[0].value;
+                    var celCmy = tblData[i].cells[11].getElementsByTagName('input')[0].value;
+                    var cellAddr = tblData[i].cells[12].getElementsByTagName('input')[0].value;
 
-                    array.push({ cellNm: cellNm, cellCp: cellCp, cellCnt: cellCnt, cellPrice: cellPrice, cellVoid: cellVoid })
+                    array.push({ cellCode: cellCode, cellRt: cellRt, cellRtp: cellRtp, cellDate: cellDate, cellDway: cellDway, cellOrd: cellOrd, cellOrdp: cellOrdp, cellCmy: cellCmy, cellAddr: cellAddr })
                 }
 
-                const response = await fetch('http://localhost:3000/requestItemList', {
+                const response = await fetch('http://localhost:3000/putRequestLogisToDB', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
