@@ -15,7 +15,7 @@ addOrderList = () => {
         var row_pmt = $('input[name="item_pmt"]:checked').val();
         var row_sup = document.getElementById('item_sup').value;
         var row_void = document.getElementById('item_void').value;
-
+        
         var objRow;
         objRow = document.all('tblShow').insertRow();
 

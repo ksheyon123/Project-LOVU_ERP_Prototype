@@ -28,7 +28,7 @@ class Product {
                             var num = parseInt(reqResponse[0].length) + 1;
                             var reqid = 'R' + num;
                         }
-                        await logisConnection.query('INSERT INTO requests (requestid, itemid, rt, trp, date, dway, ord, ordp, cmp, addr, qty) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ? )', [reqid, data.cellCode, data.cellRt, data.cellRtp, data.cellDate, data.cellDway, data.cellOrd, data.cellOrdp, data.cellCmy, data.cellAddr]);
+                        await logisConnection.query('INSERT INTO requests (requestid, itemid, rt, rtp, date, dway, ord, ordp, cmp, addr, qty) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)', [reqid, data[i].cellCode, data[i].cellRt, data[i].cellRtp, data[i].cellDate, data[i].cellDway, data[i].cellOrd, data[i].cellOrdp, data[i].cellCmy, data[i].cellAddr,  data[i].cellCnt]);
                     }
                     resolve(1)
                 } catch (err) {

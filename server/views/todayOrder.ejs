@@ -139,7 +139,25 @@
                 <input type='text' id='searchitem' name='searchitem'>
                 <button id='requestItemListBtn' onclick='requestItemList()'>조회</button>
 
-                <div id='responseitem'></div>
+                <div>
+                    <table width='800px'>
+                        <tr>
+                            <td>No.</td>
+                            <td>선택</td>
+                            <td>제품코드</td>
+                            <td>제품명</td>
+                            <td>용량</td>
+                        </tr>
+                        <tbody id='resDataShow'>
+    
+                        </tbody>
+                    </table>
+                </div>
+                <div class='pagination-wrapper clearfix'>
+                    <ul class='pagination float--right' id='paging'>
+    
+                    </ul>
+                </div>
             </p>
         </div>
     </div>
@@ -153,7 +171,25 @@
                 <input type='text' id='inventitemname' name='inventitemname' value=''>
                 <button id='requestInventoryItemListBtn' onclick='requestInventItemList()'>조회</button>
 
-                <div id='resinventitem'></div>
+                <div>
+                    <table width='800px'>
+                        <tr>
+                            <td>No.</td>
+                            <td>선택</td>
+                            <td>제품코드</td>
+                            <td>제품명</td>
+                            <td>용량</td>
+                        </tr>
+                        <tbody id='resInvDataShow'>
+    
+                        </tbody>
+                    </table>
+                </div>
+                <div class='pagination-wrapper clearfix'>
+                    <ul class='pagination float--right' id='paging_sub'>
+    
+                    </ul>
+                </div>
             </p>
         </div>
     </div>
@@ -164,7 +200,8 @@
 <script src='/javascripts/requestboxModal.js'></script>
 <script src='/javascripts/period.js'></script>
 <script src='/javascripts/adddelete.js'></script>
-
+<script src='/javascripts/pagination.js'></script>
+<script src='/javascripts/pagination_sub.js'></script>
 
 <script>
     var count = 0;
@@ -178,8 +215,11 @@
     date.innerHTML = today;
 
     requestItemList = async () => {
+        var cell = document.getElementById('resDataShow');
+        while (cell.hasChildNodes()) {
+            cell.removeChild(cell.firstChild);
+        }
         var searchItem = document.getElementById('searchitem').value;
-        var responseItem = document.getElementById('responseitem');
         const response = await fetch('http://localhost:3000/requestItemList', {
             method: 'POST',
             headers: {
@@ -193,11 +233,11 @@
             if (json[0] == undefined) {
                 window.alert('조회한 제품이 존재하지 않습니다')
             } else {
-                for (var i = 0; i < json.length; i++) {
-                    var newP = document.createElement('p');
-                    newP.innerHTML = "<button type='button' onclick='putRequest(" + `${JSON.stringify(json[i])}` + ")'>" + "선택" + "</button>" + json[i][1];
-                    var data = newP;
-                    responseItem.append(data);
+                if (json[0] == undefined) {
+                    window.alert('조회한 제품이 존재하지 않습니다')
+                } else {
+                    var maxPage = json.length;
+                    paging(json, maxPage, 10, 5, 1)
                 }
             }
         }
@@ -211,10 +251,7 @@
         item_nm.innerHTML = data[1];
         item_cp.innerHTML = data[2];
 
-        var cell = document.getElementById('responseitem'); 
-        while ( cell.hasChildNodes() ) { 
-            cell.removeChild( cell.firstChild ); 
-        }
+        modal.style.display = "none";
     }
 
     //Put Supply List To Database
@@ -343,8 +380,11 @@
 
 
     requestInventItemList = async () => {
+        var cell = document.getElementById('resInvDataShow');
+        while (cell.hasChildNodes()) {
+            cell.removeChild(cell.firstChild);
+        }
         var inventItem = document.getElementById('inventitemname').value;
-        var responseItem = document.getElementById('resinventitem');
         const response = await fetch('http://localhost:3000/requestItemList', {
             method: 'POST',
             headers: {
@@ -354,16 +394,16 @@
         })
 
         var json = await response.json();
-        console.log('json', json[0])
+        console.log('json', json.length)
         if (response.ok) {
             if (json[0] == undefined) {
                 window.alert('조회한 제품이 존재하지 않습니다')
             } else {
-                for (var i = 0; i < json.length; i++) {
-                    var newP = document.createElement('p');
-                    newP.innerHTML = "<button type='button' onclick='putInventory(" + `${JSON.stringify(json[i])}` + ")'>" + "선택" + "</button>" + json[i][1];
-                    var data = newP;
-                    responseItem.append(data);
+                if (json[0] == undefined) {
+                    window.alert('조회한 제품이 존재하지 않습니다')
+                } else {
+                    var maxPage = json.length;
+                    paging_sub(json, maxPage, 10, 5, 1)
                 }
             }
         }
@@ -374,6 +414,8 @@
         var item_code = document.getElementById('preSuppliedItemCode')
         item_code.innerHTML = data[0];
         item_nm.innerHTML = data[1];
+
+        inventModal.style.display = "none";
     }
 </script>
 

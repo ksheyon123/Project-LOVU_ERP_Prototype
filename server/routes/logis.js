@@ -14,6 +14,7 @@ router.get('/requestLogis', (req, res) => {
 router.post('/putRequestLogisToDB', async (req, res) => {
   try {
     var raw = req.body.data;
+    console.log(raw)
     await logisModel.putRequestListToDB(raw)
     res.send({result : 1})
   } catch (err) {

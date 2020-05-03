@@ -7,7 +7,7 @@ addOrderList = () => {
     var row_cnt = document.getElementById('item_cnt').value;
     var row_rt = document.getElementById('incharge').value;
     var row_rtp = document.getElementById('cphone').value;
-    var row_date = document.getElementById('deliverydate').value;
+    var row_date = document.getElementById('deliverydate').textContent;
     var row_dway = $('input[name="deliveryway"]:checked').val();
     var row_ord = document.getElementById('orderer').value;
     var row_ordp = document.getElementById('ophone').value;
