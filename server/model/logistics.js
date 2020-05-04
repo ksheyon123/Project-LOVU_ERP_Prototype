@@ -753,7 +753,20 @@ class Product {
             }
         )
     }
+    getPreStockQty (data) {
+        return new Promise (
+            async (resolve, reject) => {
+                var startDate = data.ddata.startYear + '-' + data.ddata.startMonth + '-' + data.ddata.startDay;
+                var endDate = data.ddata.endYear + '-' + data.ddata.endMonth + '-' + data.ddata.endDay;
+                var dataArray = data.raw;
+                try {
+                    await logisConnection.query('SELECT * FROM meilogistics.weekstocks WHERE date BETWEEN (NOW() - INTERVAL 7 DAY) AND (NOW())')
+                } catch (err) {
 
+                }
+            }
+        )
+    }
 
     sumEnrolledQty(data) {
         return new Promise(

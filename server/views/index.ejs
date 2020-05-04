@@ -1,20 +1,42 @@
 <!DOCTYPE html>
 <html>
-  <head>
-    <title>Login</title>
-    <link rel='stylesheet' href='/stylesheets/style.css' />
-  </head>
-  <body>
-    <h1>Login Page</h1>
-    <div>
-      <form action='/users/auth' method='post'>
-        <input type='text' name='userId' id='userId'>
-        <input type='password' name='userPw' id='userPw'>
-        <button type='submit'>로그인</button>
-      </form>
-    </div>
-  </body>
-  <script>
 
-  </script>
+<head>
+  <title>Login</title>
+  <link rel='stylesheet' href='/stylesheets/style.css' />
+</head>
+
+<body>
+  <h1>Login Page</h1>
+  <div>
+    <input type='text' name='userId' id='userId'>
+    <input type='password' name='userPw' id='userPw'>
+    <button type='button' id='lgnBtn' name='lgnBtn' onclick='lgnProcess()'>로그인</button>
+  </div>
+</body>
+<script>
+  lgnProcess = async () => {
+    var user = document.getElementById('userId').value;
+    var pw = document.getElementById('userPw').value;
+
+    const response = await fetch('http://localhost:3000/users/auth', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ userId: user, userPw: pw })
+    });
+
+    var json = await response.json();
+    if (response.ok) {
+      if (json.status == 0) {
+        window.alert('아이디 혹은 비밀번호를 확인해주세요')
+        location.reload();
+      } else if (json.status == 1) {
+        window.location.href = 'http://localhost:3000/main';
+      }
+    }
+  }
+</script>
+
 </html>

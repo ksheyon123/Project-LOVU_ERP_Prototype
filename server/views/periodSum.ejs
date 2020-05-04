@@ -51,6 +51,10 @@
 <script>
 
     getPeriod = async () => {
+        var cell = document.getElementById('tblShow');
+        while (cell.hasChildNodes()) {
+            cell.removeChild(cell.firstChild);
+        }
         var startYear = $('#start_year option:selected').val();
         var startMonth = $('#start_month option:selected').val();
         var startDay = $('#start_day option:selected').val();

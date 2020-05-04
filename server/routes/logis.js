@@ -6,6 +6,10 @@ router.get('/', (req, res, next) => {
   res.render('index');
 });
 
+router.get('/main', (req, res) => {
+  res.render('main')
+});
+
 //Render requestLogis Page
 router.get('/requestLogis', (req, res) => {
   res.render('requestLogis')
@@ -192,6 +196,7 @@ router.post('/getPeriodData', async (req, res) => {
         itemName: productList[i].name,
         itemVolume: productList[i].volume,
         qty: {
+          prestocks : 0,
           recall: 0,
           holdings1: 0,
           etc1: 0,
