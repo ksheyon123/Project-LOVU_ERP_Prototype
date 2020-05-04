@@ -756,13 +756,22 @@ class Product {
     getPreStockQty (data) {
         return new Promise (
             async (resolve, reject) => {
-                var startDate = data.ddata.startYear + '-' + data.ddata.startMonth + '-' + data.ddata.startDay;
-                var endDate = data.ddata.endYear + '-' + data.ddata.endMonth + '-' + data.ddata.endDay;
+                var startDate = data.ddata.sDate
+                var endDate = data.ddata.eDate
                 var dataArray = data.raw;
                 try {
-                    await logisConnection.query('SELECT * FROM meilogistics.weekstocks WHERE date BETWEEN (NOW() - INTERVAL 7 DAY) AND (NOW())')
+                    var resResult = await logisConnection.query('SELECT * FROM meilogistics.weekstocks WHERE date BETWEEN ? AND ?', [startDate, endDate]);
+                    for (var i = 0; i < resResult[0].length; i++) {
+                        for (var j = 0; j < dataArray.length; j++) {
+                            if(resResult[0][i].itemid == dataArray[j].itemCode) {
+                                dataArray[j].qty.prestocks = resResult[0][i].qty;
+                            }
+                        }
+                    }
+                    resolve(dataArray);
                 } catch (err) {
-
+                    console.log(err)
+                    reject(err)
                 }
             }
         )
@@ -771,8 +780,8 @@ class Product {
     sumEnrolledQty(data) {
         return new Promise(
             async (resolve, reject) => {
-                var startDate = data.ddata.startYear + '-' + data.ddata.startMonth + '-' + data.ddata.startDay;
-                var endDate = data.ddata.endYear + '-' + data.ddata.endMonth + '-' + data.ddata.endDay;
+                var startDate = data.ddata.sDate;
+                var endDate = data.ddata.eDate
                 var dataArray = data.raw;
                 try {
                     var resSupplyResult = await logisConnection.query('SELECT itemid, date, distinctid FROM supplyinqueries WHERE date BETWEEN ? AND ?', [startDate, endDate]);
@@ -840,8 +849,8 @@ class Product {
     getEnrolledOverlackQty(data) {
         return new Promise(
             async (resolve, reject) => {
-                var startDate = data.ddata.startYear + '-' + data.ddata.startMonth + '-' + data.ddata.startDay;
-                var endDate = data.ddata.endYear + '-' + data.ddata.endMonth + '-' + data.ddata.endDay;
+                var startDate = data.ddata.sDate
+                var endDate = data.ddata.eDate
                 var dataArray = data.raw;
                 try {
                     var resOverlackResult = await logisConnection.query('SELECT overlackid, itemid, qty, status FROM overlack WHERE date BETWEEN ? AND ?', [startDate, endDate]);

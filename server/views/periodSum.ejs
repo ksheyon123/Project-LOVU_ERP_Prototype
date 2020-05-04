@@ -7,20 +7,8 @@
 </head>
 
 <body>
-    날짜 :
-    <select id="start_year" name="start_year">
-    </select>
-    <select id="start_month" name="start_month">
-    </select>
-    <select id="start_day" name="start_day">
-    </select> ~
-    <select id="end_year" name="end_year">
-    </select>
-    <select id="end_month" name="end_month">
-    </select>
-    <select id="end_day" name="end_day">
-    </select>
 
+    <div id='weekly'></div>
     <input type='button' id='periodBtn' value='조회' onclick='getPeriod()'>
 
     <div>
@@ -47,30 +35,38 @@
         </table>
     </div>
 </body>
-<script src='/javascripts/period.js'></script>
-<script>
+<!-- <script src='/javascripts/period.js'></script> -->
+<script src='/javascripts/weekly.js'></script>
 
+<script>
+    $(document).ready(() => {
+        var now = new Date();
+        var startDay = 1; //0=sunday, 1=monday etc.
+        var d = now.getDay(); //get the current day
+        var weekStart = new Date(now.valueOf() - (d <= 0 ? 7 - startDay : d - startDay) * 86400000); //rewind to start day
+        var weekEnd = new Date(weekStart.valueOf() + 6 * 86400000); //add 6 days to get last day
+        weekly(weekStart, weekEnd);
+    });
     getPeriod = async () => {
         var cell = document.getElementById('tblShow');
         while (cell.hasChildNodes()) {
             cell.removeChild(cell.firstChild);
         }
-        var startYear = $('#start_year option:selected').val();
-        var startMonth = $('#start_month option:selected').val();
-        var startDay = $('#start_day option:selected').val();
-        var endYear = $('#end_year option:selected').val();
-        var endMonth = $('#end_month option:selected').val();
-        var endDay = $('#end_day option:selected').val();
+
+        var sdata = document.getElementById('ddate').childNodes[1].textContent;
+        var edata = document.getElementById('ddate').childNodes[3].textContent;
+
         try {
             const response = await fetch('http://localhost:3000/getPeriodData', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
                 },
-                body: JSON.stringify({ startYear: startYear, startMonth: startMonth, startDay: startDay, endYear: endYear, endMonth: endMonth, endDay: endDay })
+                body: JSON.stringify({ sDate: sdata, eDate: edata })
             });
 
             var json = await response.json();
+            console.log(json)
             if (response.ok) {
                 var objRow;
                 for (var i = 0; i < json.length; i++) {
@@ -92,41 +88,45 @@
                     var objCell_Cp = objRow.insertCell();
                     objCell_Cp.innerHTML = json[i].itemVolume;
 
+                    //Product Stocks Count
+                    var objCell_sCnt = objRow.insertCell();
+                    objCell_sCnt.innerHTML = json[i].qty.prestocks;
+
                     //Product Recall Count
                     var objCell_rCnt = objRow.insertCell();
                     objCell_rCnt.innerHTML = json[i].qty.recall;
 
                     //Product holdings1 Count
-                    var objCell_hCnt = objRow.insertCell();
-                    objCell_hCnt.innerHTML = json[i].qty.holdings1;
+                    var objCell_hCnt1 = objRow.insertCell();
+                    objCell_hCnt1.innerHTML = json[i].qty.holdings1;
 
                     //Product etc1 Count
-                    var objCell_eCnt = objRow.insertCell();
-                    objCell_eCnt.innerHTML = json[i].qty.etc1;
+                    var objCell_eCnt1 = objRow.insertCell();
+                    objCell_eCnt1.innerHTML = json[i].qty.etc1;
 
                     //Product sell Count
-                    var objCell_rCnt = objRow.insertCell();
-                    objCell_rCnt.innerHTML = json[i].qty.sell;
+                    var objCell_seCnt = objRow.insertCell();
+                    objCell_seCnt.innerHTML = json[i].qty.sell;
 
                     //Product holdings2 Count
-                    var objCell_hCnt = objRow.insertCell();
-                    objCell_hCnt.innerHTML = json[i].qty.holdings2;
+                    var objCell_hCnt2 = objRow.insertCell();
+                    objCell_hCnt2.innerHTML = json[i].qty.holdings2;
 
                     //Product etc2 Count
-                    var objCell_eCnt = objRow.insertCell();
-                    objCell_eCnt.innerHTML = json[i].qty.etc2;
+                    var objCell_eCnt2 = objRow.insertCell();
+                    objCell_eCnt2.innerHTML = json[i].qty.etc2;
 
                     //Product over Count
-                    var objCell_eCnt = objRow.insertCell();
-                    objCell_eCnt.innerHTML = json[i].qty.over;
+                    var objCell_oCnt = objRow.insertCell();
+                    objCell_oCnt.innerHTML = json[i].qty.over;
 
                     //Product lack Count
-                    var objCell_eCnt = objRow.insertCell();
-                    objCell_eCnt.innerHTML = json[i].qty.lack;
+                    var objCell_lCnt = objRow.insertCell();
+                    objCell_lCnt.innerHTML = json[i].qty.lack;
 
                     //Product Real Count
-                    var objCell_eCnt = objRow.insertCell();
-                    objCell_eCnt.innerHTML = (json[i].qty.recall + json[i].qty.holdings1 + json[i].qty.etc1) - (json[i].qty.sell + json[i].qty.holdings2 + json[i].qty.etc2) + json[i].qty.over - json[i].qty.lack;
+                    var objCell_rCnt = objRow.insertCell();
+                    objCell_rCnt.innerHTML = (json[i].qty.prestocks + json[i].qty.recall + json[i].qty.holdings1 + json[i].qty.etc1) - (json[i].qty.sell + json[i].qty.holdings2 + json[i].qty.etc2) + json[i].qty.over - json[i].qty.lack;
                 }
             }
         } catch (err) {
@@ -134,5 +134,8 @@
         }
     }
 </script>
+<style>
+
+</style>
 
 </html>

@@ -213,11 +213,12 @@ router.post('/getPeriodData', async (req, res) => {
       ddata: req.body,
       raw: rawArr,
     }
+    var getPreStocks = await logisModel.getPreStockQty(dataSet)
+    dataSet.raw = getPreStocks;
     var putAllQty = await logisModel.sumEnrolledQty(dataSet);
     dataSet.raw = putAllQty;
     var allResult = await logisModel.getEnrolledOverlackQty(dataSet)
     res.send(allResult);
-
   } catch (err) {
     console.log(err)
   }
