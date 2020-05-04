@@ -4,19 +4,25 @@ var path = require('path');
 var fs = require('fs')
 var cookieParser = require('cookie-parser');
 var logger = require('morgan');
+var app = express();
 
 //After Add Session Storage Here
+const session = require('express-session');
+const FileStore = require('session-file-store')(session);
 
+app.use(session({
+  secret: 'keyboard cat',
+  resave: false,
+  saveUninitialized: true,
+  store: new FileStore(),
+}));
 
 var indexRouter = require('./routes/logis');
 var usersRouter = require('./routes/users');
 
-var app = express();
-
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'ejs');
-// app.set('view engine', 'html');
 
 app.use(logger('dev'));
 app.use(express.json());
